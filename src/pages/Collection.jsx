@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
+import { useSearchParams } from 'react-router-dom'
 import { assets } from '../assets/assets';
 import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
@@ -7,11 +8,20 @@ import ProductItem from '../components/ProductItem';
 const Collection = () => {
 
   const { products , search , showSearch } = useContext(ShopContext);
+  const [searchParams] = useSearchParams();
   const [showFilter,setShowFilter] = useState(false);
   const [filterProducts,setFilterProducts] = useState([]);
   const [category,setCategory] = useState([]);
   const [subCategory,setSubCategory] = useState([]);
   const [sortType,setSortType] = useState('relavent')
+
+  // Handle URL parameters for category filtering
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam && !category.includes(categoryParam)) {
+      setCategory([categoryParam]);
+    }
+  }, [searchParams])
 
   const toggleCategory = (e) => {
 
@@ -43,7 +53,10 @@ const Collection = () => {
     }
 
     if (category.length > 0) {
-      productsCopy = productsCopy.filter(item => category.includes(item.category));
+      productsCopy = productsCopy.filter(item => {
+        const itemCategory = typeof item.category === 'object' ? item.category?.name : item.category;
+        return category.includes(itemCategory);
+      });
     }
 
     if (subCategory.length > 0 ) {

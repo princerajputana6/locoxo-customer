@@ -3,11 +3,12 @@ import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
+import { toast } from 'react-toastify';
 
 const Product = () => {
 
   const { productId } = useParams();
-  const { products, currency ,addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, navigate } = useContext(ShopContext);
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState('')
   const [size,setSize] = useState('')
@@ -80,6 +81,7 @@ const Product = () => {
           <p className='text-gray-600 leading-relaxed mb-8'>{productData.description}</p>
           
           {/* Size Selector */}
+          {productData.sizes && productData.sizes.length > 0 && (
           <div className='mb-8'>
               <p className='text-sm font-bold tracking-wide mb-4'>SELECT SIZE</p>
               <div className='flex flex-wrap gap-3'>
@@ -98,14 +100,36 @@ const Product = () => {
                 ))}
               </div>
           </div>
+          )}
           
-          {/* Add to Cart Button */}
-          <button 
-            onClick={()=>addToCart(productData._id,size)} 
-            className='w-full bg-black text-white py-4 font-semibold tracking-wide hover:bg-gray-800 transition-colors mb-6'
-          >
-            ADD TO CART
-          </button>
+          {/* Action Buttons */}
+          <div className='flex gap-4 mb-6'>
+            <button 
+              onClick={()=>{
+                if (!size && productData.sizes && productData.sizes.length > 0) {
+                  toast.error('Please select a size');
+                  return;
+                }
+                addToCart(productData._id,size);
+              }} 
+              className='flex-1 bg-white text-black border-2 border-black py-4 font-semibold tracking-wide hover:bg-black hover:text-white transition-colors'
+            >
+              ADD TO CART
+            </button>
+            <button 
+              onClick={()=>{
+                if (!size && productData.sizes && productData.sizes.length > 0) {
+                  toast.error('Please select a size');
+                  return;
+                }
+                addToCart(productData._id,size);
+                navigate('/cart');
+              }} 
+              className='flex-1 bg-black text-white py-4 font-semibold tracking-wide hover:bg-gray-800 transition-colors'
+            >
+              BUY NOW
+            </button>
+          </div>
           
           {/* Product Features */}
           <div className='border-t border-gray-200 pt-6 space-y-3'>
@@ -145,7 +169,7 @@ const Product = () => {
 
       {/* --------- display related products ---------- */}
 
-      <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
+      <RelatedProducts category={typeof productData.category === 'object' ? productData.category?.name : productData.category} subCategory={productData.subCategory} />
 
     </div>
   ) : <div className=' opacity-0'></div>

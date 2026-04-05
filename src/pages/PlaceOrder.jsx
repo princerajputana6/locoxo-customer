@@ -94,6 +94,9 @@ const PlaceOrder = () => {
             
             // Calculate subtotal
             const subtotal = getCartAmount()
+            
+            // Get referral code from localStorage if exists
+            const referralCode = localStorage.getItem('referralCode')
 
             let orderData = {
                 orderNumber: orderNumber,
@@ -113,6 +116,11 @@ const PlaceOrder = () => {
                 }
             }
             
+            // Add referral code if exists
+            if (referralCode) {
+                orderData.referralCode = referralCode
+            }
+            
             console.log('Sending Order Data:', orderData);
 
             switch (method) {
@@ -122,6 +130,7 @@ const PlaceOrder = () => {
                     const response = await axios.post(backendUrl + '/api/order/place',orderData,{headers:{token}})
                     if (response.data.success) {
                         setCartItems({})
+                        localStorage.removeItem('referralCode') // Clear referral code after order
                         navigate('/orders')
                     } else {
                         toast.error(response.data.message)

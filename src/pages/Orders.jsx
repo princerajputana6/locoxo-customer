@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const Orders = () => {
 
-  const { backendUrl, token , currency} = useContext(ShopContext);
+  const { backendUrl, token , currency, navigate} = useContext(ShopContext);
 
   const [orderData,setorderData] = useState([])
 
@@ -24,6 +24,7 @@ const Orders = () => {
             item['payment'] = order.payment
             item['paymentMethod'] = order.paymentMethod
             item['date'] = order.date
+            item['orderId'] = order._id
             allOrdersItem.push(item)
           })
         })
@@ -60,7 +61,7 @@ const Orders = () => {
               orderData.map((item,index) => (
                 <div key={index} className='border border-gray-200 p-4 hover:border-gray-300 transition-colors'>
                     <div className='flex flex-col md:flex-row gap-4'>
-                        <img className='w-24 h-24 object-cover bg-gray-100' src={item.image[0]} alt="" />
+                        <img className='w-24 h-24 object-cover bg-gray-100' src={item.image} alt="" />
                         <div className='flex-1'>
                           <h3 className='font-semibold mb-2'>{item.name}</h3>
                           <div className='flex flex-wrap gap-4 text-sm mb-3'>
@@ -78,7 +79,7 @@ const Orders = () => {
                                 <div className='w-2 h-2 rounded-full bg-green-500'></div>
                                 <span className='text-sm font-medium'>{item.status}</span>
                             </div>
-                            <button onClick={loadOrderData} className='bg-black text-white px-6 py-2 text-sm font-semibold hover:bg-gray-800 transition-colors'>
+                            <button onClick={()=>navigate('/track-order/' + item.orderId)} className='bg-black text-white px-6 py-2 text-sm font-semibold hover:bg-gray-800 transition-colors'>
                               TRACK ORDER
                             </button>
                         </div>

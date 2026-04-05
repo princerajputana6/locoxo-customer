@@ -1,34 +1,47 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Title from './Title'
-import { assets } from '../assets/assets'
+import { ShopContext } from '../context/ShopContext'
+import axios from 'axios'
 
 const InfluencerSection = () => {
-  const influencers = [
-    {
-      id: 1,
-      name: "@fashionicon",
-      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      product: "Floral Summer Dress"
-    },
-    {
-      id: 2,
-      name: "@styleguru",
-      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      product: "Classic White Tee"
-    },
-    {
-      id: 3,
-      name: "@trendsetter",
-      image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      product: "Denim Jacket"
-    },
-    {
-      id: 4,
-      name: "@urbanwear",
-      image: "https://images.unsplash.com/photo-1524041255072-7da0525d6b34?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      product: "Cargo Pants"
+  const { backendUrl, navigate } = useContext(ShopContext)
+  const [influencers, setInfluencers] = useState([])
+
+  const fetchInfluencers = async () => {
+    try {
+      const response = await axios.get(backendUrl + '/api/influencer/active/all')
+      if (response.data.success) {
+        setInfluencers(response.data.influencers)
+      }
+    } catch (error) {
+      console.log(error)
     }
-  ]
+  }
+
+  useEffect(() => {
+    fetchInfluencers()
+  }, [])
+
+  const handleInfluencerClick = async (influencer) => {
+    try {
+      // Track click
+      await axios.post(backendUrl + '/api/influencer/track-click', { 
+        referralCode: influencer.referralCode 
+      })
+      
+      // Store referral code in localStorage for order placement
+      localStorage.setItem('referralCode', influencer.referralCode)
+      
+      // Navigate to product page
+      navigate(`/product/${influencer.productId._id}`)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  if (influencers.length === 0) {
+    return null
+  }
 
   return (
     <div className='my-16 sm:my-20 px-4 sm:px-6 lg:px-8'>
@@ -41,15 +54,19 @@ const InfluencerSection = () => {
 
         <div className='grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6'>
             {influencers.map((item) => (
-                <div key={item.id} className='relative group cursor-pointer overflow-hidden rounded-lg'>
+                <div 
+                    key={item._id} 
+                    onClick={() => handleInfluencerClick(item)}
+                    className='relative group cursor-pointer overflow-hidden rounded-lg'
+                >
                     <img 
                         src={item.image} 
                         alt={item.name} 
                         className='w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500'
                     />
                     <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100'>
-                        <p className='text-white font-bold'>{item.name}</p>
-                        <p className='text-gray-200 text-sm mt-1'>Shop {item.product}</p>
+                        <p className='text-white font-bold'>{item.instagramHandle || item.name}</p>
+                        <p className='text-gray-200 text-sm mt-1'>Shop {item.productId?.name}</p>
                         <button className='mt-3 bg-white text-black py-2 px-4 text-sm font-medium hover:bg-gray-100 transition-colors w-full'>
                             SHOP THE LOOK
                         </button>

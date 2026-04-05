@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
 
@@ -11,13 +12,16 @@ const Login = () => {
   const [name,setName] = useState('')
   const [password,setPasword] = useState('')
   const [email,setEmail] = useState('')
+  const [phone,setPhone] = useState('')
+  const [dob,setDob] = useState('')
+  const [showPassword,setShowPassword] = useState(false)
 
   const onSubmitHandler = async (event) => {
       event.preventDefault();
       try {
         if (currentState === 'Sign Up') {
           
-          const response = await axios.post(backendUrl + '/api/user/register',{name,email,password})
+          const response = await axios.post(backendUrl + '/api/user/register',{name,email,password,phone,dob})
           if (response.data.success) {
             setToken(response.data.token)
             localStorage.setItem('token',response.data.token)
@@ -60,17 +64,42 @@ const Login = () => {
 
         <form onSubmit={onSubmitHandler} className='space-y-5'>
           {currentState === 'Sign Up' && (
-            <div>
-              <label className='block text-sm font-semibold mb-2'>FULL NAME</label>
-              <input 
-                onChange={(e)=>setName(e.target.value)} 
-                value={name} 
-                type="text" 
-                className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' 
-                placeholder='John Doe' 
-                required
-              />
-            </div>
+            <>
+              <div>
+                <label className='block text-sm font-semibold mb-2'>FULL NAME</label>
+                <input 
+                  onChange={(e)=>setName(e.target.value)} 
+                  value={name} 
+                  type="text" 
+                  className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' 
+                  placeholder='John Doe' 
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className='block text-sm font-semibold mb-2'>PHONE NUMBER</label>
+                <input 
+                  onChange={(e)=>setPhone(e.target.value)} 
+                  value={phone} 
+                  type="tel" 
+                  className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' 
+                  placeholder='+91 9876543210' 
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className='block text-sm font-semibold mb-2'>DATE OF BIRTH</label>
+                <input 
+                  onChange={(e)=>setDob(e.target.value)} 
+                  value={dob} 
+                  type="date" 
+                  className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' 
+                  required
+                />
+              </div>
+            </>
           )}
           
           <div>
@@ -87,14 +116,23 @@ const Login = () => {
           
           <div>
             <label className='block text-sm font-semibold mb-2'>PASSWORD</label>
-            <input 
-              onChange={(e)=>setPasword(e.target.value)} 
-              value={password} 
-              type="password" 
-              className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' 
-              placeholder='••••••••' 
-              required
-            />
+            <div className='relative'>
+              <input 
+                onChange={(e)=>setPasword(e.target.value)} 
+                value={password} 
+                type={showPassword ? "text" : "password"}
+                className='w-full px-4 py-3 pr-12 border-2 border-gray-300 focus:border-black outline-none transition-colors' 
+                placeholder='••••••••' 
+                required
+              />
+              <button
+                type='button'
+                onClick={() => setShowPassword(!showPassword)}
+                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black transition-colors'
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           {currentState === 'Login' && (

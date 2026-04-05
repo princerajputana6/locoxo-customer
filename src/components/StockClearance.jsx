@@ -47,7 +47,7 @@ const StockClearance = () => {
                             </div>
                             <ProductItem id={item._id} image={item.image} name={item.name} price={item.discountPrice || item.price} />
                             {item.discountPrice && (
-                                <p className='text-sm text-gray-500 line-through mt-1'>${item.price}</p>
+                                <p className='text-sm text-gray-500 line-through mt-1'>₹{item.price}</p>
                             )}
                         </div>
                     ))}

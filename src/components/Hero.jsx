@@ -1,86 +1,82 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ShopContext } from '../context/ShopContext'
 
 const Hero = () => {
   const navigate = useNavigate();
+  const { categories } = useContext(ShopContext);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState([]);
 
-  // Category slides - each slide has 3 categories
-  const slides = [
-    [
-      {
-        title: 'LIVE IN DENIMS',
-        subtitle: 'MUST HAVE DENIMS',
-        image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=80',
-        category: 'Men',
-        bgColor: 'bg-blue-100'
-      },
-      {
-        title: 'TECHNICAL WEAR',
-        subtitle: 'LIGHT WEIGHT • STRETCHLESS • BREATHABLE',
-        image: 'https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?w=800&q=80',
-        category: 'Men',
-        bgColor: 'bg-gray-100'
-      },
-      {
-        title: 'PERFUMES',
-        subtitle: 'THAT MAKE AN IMPRESSION',
-        image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80',
-        category: 'Men',
-        bgColor: 'bg-black'
+  // Default images for categories
+  const categoryImages = {
+    'Men': 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&q=80',
+    'Women': 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80',
+    'Anime': 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&q=80',
+    'Super Hero': 'https://images.unsplash.com/photo-1612036782180-6f0b6ce846ce?w=800&q=80'
+  };
+
+  const categoryColors = {
+    'Men': 'bg-blue-100',
+    'Women': 'bg-pink-100',
+    'Anime': 'bg-purple-100',
+    'Super Hero': 'bg-red-100'
+  };
+
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      // Create slides from categories (3 categories per slide)
+      const categorySlides = [];
+      for (let i = 0; i < categories.length; i += 3) {
+        const slideCategories = categories.slice(i, i + 3).map(cat => ({
+          title: cat.name.toUpperCase(),
+          subtitle: cat.description || `Shop ${cat.name} Collection`,
+          image: cat.image || categoryImages[cat.name] || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80',
+          category: cat.name,
+          bgColor: categoryColors[cat.name] || 'bg-gray-100'
+        }));
+        categorySlides.push(slideCategories);
       }
-    ],
-    [
-      {
-        title: 'WOMEN COLLECTION',
-        subtitle: 'ELEGANCE REDEFINED',
-        image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80',
-        category: 'Women',
-        bgColor: 'bg-pink-100'
-      },
-      {
-        title: 'KIDS FASHION',
-        subtitle: 'PLAYFUL & COMFORTABLE',
-        image: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=800&q=80',
-        category: 'Kids',
-        bgColor: 'bg-yellow-100'
-      },
-      {
-        title: 'ACCESSORIES',
-        subtitle: 'COMPLETE YOUR LOOK',
-        image: 'https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?w=800&q=80',
-        category: 'Men',
-        bgColor: 'bg-gray-200'
-      }
-    ]
-  ];
+      setSlides(categorySlides);
+    }
+  }, [categories]);
 
   // Auto-scroll every 4 seconds
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(timer);
+    if (slides.length > 0) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, 4000);
+      return () => clearInterval(timer);
+    }
   }, [slides.length]);
 
   const handleCategoryClick = (category) => {
     navigate(`/collection?category=${category}`);
   };
 
+  if (slides.length === 0) {
+    return (
+      <div className='relative w-full h-[700px] sm:h-[500px] md:h-[600px] bg-gray-100 flex items-center justify-center'>
+        <p className='text-gray-500'>Loading categories...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className='relative w-full h-[500px] md:h-[600px] bg-white overflow-hidden'>
+    <div className='relative w-full h-[700px] sm:h-[500px] md:h-[600px] bg-white overflow-hidden'>
       {/* Slider Container */}
       <div 
         className='flex transition-transform duration-700 ease-in-out h-full'
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {slides.map((slide, slideIndex) => (
-          <div key={slideIndex} className='min-w-full h-full flex'>
+          <div key={slideIndex} className='min-w-full h-full flex flex-col md:flex-row'>
             {slide.map((category, catIndex) => (
               <div 
                 key={catIndex}
                 onClick={() => handleCategoryClick(category.category)}
-                className='flex-1 relative overflow-hidden cursor-pointer group'
+                className='flex-1 relative overflow-hidden cursor-pointer group w-full h-1/3 md:h-full md:w-auto'
               >
                 {/* Background Image */}
                 <div className='absolute inset-0'>

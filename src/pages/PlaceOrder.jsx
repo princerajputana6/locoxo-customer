@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 const PlaceOrder = () => {
 
     const [method, setMethod] = useState('cod');
+    const [showLoginMessage, setShowLoginMessage] = useState(false);
     const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -58,6 +59,14 @@ const PlaceOrder = () => {
 
     const onSubmitHandler = async (event) => {
         event.preventDefault()
+        
+        // Check if user is logged in
+        if (!token) {
+            setShowLoginMessage(true)
+            setTimeout(() => setShowLoginMessage(false), 5000)
+            return
+        }
+        
         try {
 
             let orderItems = []
@@ -67,20 +76,44 @@ const PlaceOrder = () => {
                     if (cartItems[items][item] > 0) {
                         const itemInfo = structuredClone(products.find(product => product._id === items))
                         if (itemInfo) {
-                            itemInfo.size = item
-                            itemInfo.quantity = cartItems[items][item]
-                            orderItems.push(itemInfo)
+                            orderItems.push({
+                                productId: itemInfo._id,
+                                name: itemInfo.name,
+                                image: Array.isArray(itemInfo.image) ? itemInfo.image[0] : itemInfo.image,
+                                price: itemInfo.price,
+                                quantity: cartItems[items][item],
+                                size: item
+                            })
                         }
                     }
                 }
             }
 
+            // Generate order number
+            const orderNumber = 'ORD' + Date.now() + Math.floor(Math.random() * 1000)
+            
+            // Calculate subtotal
+            const subtotal = getCartAmount()
+
             let orderData = {
-                address: formData,
+                orderNumber: orderNumber,
                 items: orderItems,
-                amount: getCartAmount() + delivery_fee
+                subtotal: subtotal,
+                shippingCharge: delivery_fee,
+                amount: subtotal + delivery_fee,
+                address: {
+                    name: formData.firstName + ' ' + formData.lastName,
+                    phone: formData.phone,
+                    addressLine1: formData.street,
+                    addressLine2: '',
+                    city: formData.city,
+                    state: formData.state,
+                    pincode: formData.zipcode,
+                    country: formData.country
+                }
             }
             
+            console.log('Sending Order Data:', orderData);
 
             switch (method) {
 
@@ -95,23 +128,13 @@ const PlaceOrder = () => {
                     }
                     break;
 
-                case 'stripe':
-                    const responseStripe = await axios.post(backendUrl + '/api/order/stripe',orderData,{headers:{token}})
-                    if (responseStripe.data.success) {
-                        const {session_url} = responseStripe.data
-                        window.location.replace(session_url)
-                    } else {
-                        toast.error(responseStripe.data.message)
-                    }
-                    break;
-
                 case 'razorpay':
-
                     const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, {headers:{token}})
                     if (responseRazorpay.data.success) {
                         initPay(responseRazorpay.data.order)
+                    } else {
+                        toast.error(responseRazorpay.data.message)
                     }
-
                     break;
 
                 default:
@@ -197,16 +220,29 @@ const PlaceOrder = () => {
                         
                         <div className='mt-8'>
                             <h3 className='text-sm font-bold mb-4'>PAYMENT METHOD</h3>
+                            
+                            {showLoginMessage && (
+                                <div className='mb-4 p-4 bg-red-50 border border-red-200 rounded-lg'>
+                                    <p className='text-sm text-red-800 font-medium'>Please log in to place an order</p>
+                                    <button 
+                                        onClick={() => navigate('/login')}
+                                        className='mt-2 text-sm text-red-600 underline hover:text-red-800'
+                                    >
+                                        Go to Login
+                                    </button>
+                                </div>
+                            )}
+                            
                             <div className='space-y-3'>
-                                <label onClick={() => setMethod('stripe')} className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${
-                                    method === 'stripe' ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'
+                                <label onClick={() => setMethod('cod')} className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${
+                                    method === 'cod' ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'
                                 }`}>
                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                        method === 'stripe' ? 'border-black' : 'border-gray-300'
+                                        method === 'cod' ? 'border-black' : 'border-gray-300'
                                     }`}>
-                                        {method === 'stripe' && <div className='w-3 h-3 rounded-full bg-black'></div>}
+                                        {method === 'cod' && <div className='w-3 h-3 rounded-full bg-black'></div>}
                                     </div>
-                                    <img className='h-5' src={assets.stripe_logo} alt="Stripe" />
+                                    <span className='text-sm font-medium'>CASH ON DELIVERY</span>
                                 </label>
                                 
                                 <label onClick={() => setMethod('razorpay')} className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${
@@ -217,18 +253,7 @@ const PlaceOrder = () => {
                                     }`}>
                                         {method === 'razorpay' && <div className='w-3 h-3 rounded-full bg-black'></div>}
                                     </div>
-                                    <img className='h-5' src={assets.razorpay_logo} alt="Razorpay" />
-                                </label>
-                                
-                                <label onClick={() => setMethod('cod')} className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${
-                                    method === 'cod' ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'
-                                }`}>
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                        method === 'cod' ? 'border-black' : 'border-gray-300'
-                                    }`}>
-                                        {method === 'cod' && <div className='w-3 h-3 rounded-full bg-black'></div>}
-                                    </div>
-                                    <span className='text-sm font-medium'>CASH ON DELIVERY</span>
+                                    <span className='text-sm font-medium'>PAY ONLINE</span>
                                 </label>
                             </div>
                         </div>

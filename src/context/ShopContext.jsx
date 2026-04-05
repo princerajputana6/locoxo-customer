@@ -14,6 +14,7 @@ const ShopContextProvider = (props) => {
     const [showSearch, setShowSearch] = useState(false);
     const [cartItems, setCartItems] = useState({});
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [token, setToken] = useState('')
     const navigate = useNavigate();
 
@@ -124,6 +125,20 @@ const ShopContextProvider = (props) => {
         }
     }
 
+    const getCategoriesData = async () => {
+        try {
+            const response = await axios.get(backendUrl + '/api/category/list?status=active')
+            if (response.data.success) {
+                setCategories(response.data.categories)
+            } else {
+                toast.error(response.data.message)
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+        }
+    }
+
     const getUserCart = async ( token ) => {
         try {
             
@@ -139,6 +154,7 @@ const ShopContextProvider = (props) => {
 
     useEffect(() => {
         getProductsData()
+        getCategoriesData()
     }, [])
 
     useEffect(() => {
@@ -157,7 +173,7 @@ const ShopContextProvider = (props) => {
         cartItems, addToCart,setCartItems,
         getCartCount, updateQuantity,
         getCartAmount, navigate, backendUrl,
-        setToken, token
+        setToken, token, categories
     }
 
     return (

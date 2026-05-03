@@ -1,12 +1,12 @@
 import React from 'react'
 import Hero from '../components/Hero'
-import TopCategory from '../components/TopCategory'
-import LatestCollection from '../components/LatestCollection'
+import MatchTheMood from '../components/MatchTheMood'
+import SpotOnInstagram from '../components/SpotOnInstagram'
+import PriceBasedCombo from '../components/PriceBasedCombo'
 import BestSeller from '../components/BestSeller'
-import AnimeSuperHero from '../components/AnimeSuperHero'
-import StockClearance from '../components/StockClearance'
-import InfluencerSection from '../components/InfluencerSection'
-import ReviewSystem from '../components/ReviewSystem'
+import NewArrivals from '../components/NewArrivals'
+import VideoIntro from '../components/VideoIntro'
+import YourFavorites from '../components/YourFavorites'
 import OurPolicy from '../components/OurPolicy'
 import NewsletterBox from '../components/NewsletterBox'
 
@@ -14,15 +14,15 @@ const Home = () => {
   return (
     <div>
       <Hero />
-      <BestSeller/>
-      <StockClearance />
-      <InfluencerSection />
-      <TopCategory />
-      <LatestCollection/>
-      <AnimeSuperHero />
-      <ReviewSystem />
-      <OurPolicy/>
-      <NewsletterBox/>
+      <MatchTheMood />
+      <SpotOnInstagram />
+      <PriceBasedCombo />
+      <BestSeller />
+      <NewArrivals />
+      <VideoIntro />
+      <YourFavorites />
+      <OurPolicy />
+      <NewsletterBox />
     </div>
   )
 }

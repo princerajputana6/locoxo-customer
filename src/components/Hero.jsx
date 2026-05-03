@@ -93,12 +93,9 @@ const Hero = () => {
                   <h2 className='text-white text-3xl md:text-5xl font-bold mb-3 tracking-tight'>
                     {category.title}
                   </h2>
-                  <p className='text-white/90 text-sm md:text-base tracking-wider mb-6'>
+                  <p className='text-white/90 text-sm md:text-base tracking-wider'>
                     {category.subtitle}
                   </p>
-                  <button className='bg-white text-black px-6 py-3 font-semibold text-sm tracking-wide hover:bg-black hover:text-white transition-colors duration-300'>
-                    SHOP NOW
-                  </button>
                 </div>
               </div>
             ))}

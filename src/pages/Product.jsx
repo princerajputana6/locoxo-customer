@@ -18,6 +18,9 @@ const Product = () => {
   const [activeTab, setActiveTab] = useState('product')
   const [reviewFilter, setReviewFilter] = useState('Most Helpful')
   const [frequentlyBought, setFrequentlyBought] = useState([])
+  const [reviews, setReviews] = useState([])
+  const [reviewStats, setReviewStats] = useState(null)
+  const [loadingReviews, setLoadingReviews] = useState(false)
 
   const fetchProductData = async () => {
     products.map((item) => {
@@ -55,29 +58,62 @@ const Product = () => {
     }
   };
 
-  const originalPrice = productData ? Math.round(productData.price * 2) : 0;
-  const discount = 50;
+  const originalPrice = productData?.discountPrice ? productData.price : Math.round(productData?.price * 1.5) || 0;
+  const discount = productData?.discountPrice 
+    ? Math.round(((originalPrice - productData.discountPrice) / originalPrice) * 100)
+    : Math.round(((originalPrice - (productData?.price || 0)) / originalPrice) * 100);
 
-  const keyHighlights = [
-    { label: 'Design', value: 'Graphic Print' },
-    { label: 'Fit', value: 'Oversized Fit' },
-    { label: 'Neck', value: 'Round Neck' },
-    { label: 'Occasion', value: 'Casual Wear' },
-    { label: 'Sleeve Style', value: 'Half Sleeve' },
-    { label: 'Hemline', value: 'Straight' }
-  ];
-
-  const reviewStats = {
-    average: 4.5,
-    total: 552,
-    distribution: [
-      { stars: 5, count: 319, percentage: 58 },
-      { stars: 4, count: 171, percentage: 31 },
-      { stars: 3, count: 62, percentage: 11 },
-      { stars: 2, count: 0, percentage: 0 },
-      { stars: 1, count: 0, percentage: 0 }
-    ]
+  const fetchReviews = async () => {
+    if (!productData) return;
+    
+    setLoadingReviews(true);
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/review/product/${productData._id}?limit=10`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setReviews(data.reviews || []);
+        
+        // Calculate review statistics
+        const total = data.reviews.length;
+        if (total > 0) {
+          const distribution = [5, 4, 3, 2, 1].map(stars => {
+            const count = data.reviews.filter(r => r.rating === stars).length;
+            return {
+              stars,
+              count,
+              percentage: Math.round((count / total) * 100)
+            };
+          });
+          
+          const average = data.reviews.reduce((sum, r) => sum + r.rating, 0) / total;
+          
+          setReviewStats({
+            average: average.toFixed(1),
+            total,
+            distribution
+          });
+        } else {
+          setReviewStats({
+            average: 0,
+            total: 0,
+            distribution: [5, 4, 3, 2, 1].map(stars => ({ stars, count: 0, percentage: 0 }))
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setLoadingReviews(false);
+    }
   };
+
+  useEffect(() => {
+    if (productData) {
+      fetchReviews();
+    }
+  }, [productData]);
 
   return productData ? (
     <div className='bg-white'>
@@ -125,10 +161,12 @@ const Product = () => {
 
                 {/* Main Image */}
                 <div className='flex-1 relative'>
-                  {/* Oversized Fit Badge */}
-                  <div className='absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 py-1 rounded text-xs font-semibold'>
-                    OVERSIZED FIT
-                  </div>
+                  {/* Badge - only show if product has tags */}
+                  {productData.tags && productData.tags.length > 0 && (
+                    <div className='absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 py-1 rounded text-xs font-semibold'>
+                      {productData.tags[0].toUpperCase()}
+                    </div>
+                  )}
                   <img className='w-full h-auto rounded-lg object-cover' src={image} alt={productData.name} />
                   {/* Navigation Arrow */}
                   <button className='absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors'>
@@ -144,7 +182,7 @@ const Product = () => {
           {/* Right Side - Product Info */}
           <div className='lg:w-[45%] pb-10'>
             {/* Brand */}
-            <p className='text-lg font-semibold text-gray-800 mb-1'>LOCOXO®</p>
+            <p className='text-lg font-semibold text-gray-800 mb-1'>{productData.brand || 'LOCOXO'}®</p>
             
             {/* Product Name */}
             <h1 className='text-xl text-gray-600 mb-4'>{productData.name}</h1>
@@ -158,58 +196,50 @@ const Product = () => {
             </div>
 
             {/* Rating */}
-            <div className='flex items-center gap-2 mb-4'>
-              <div className='flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-sm'>
-                <span className='font-semibold'>{reviewStats.average}</span>
-                <svg className='w-3 h-3 fill-current' viewBox='0 0 20 20'>
-                  <path d='M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z'/>
-                </svg>
+            {reviewStats && reviewStats.total > 0 && (
+              <div className='flex items-center gap-2 mb-4'>
+                <div className='flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-sm'>
+                  <span className='font-semibold'>{reviewStats.average}</span>
+                  <svg className='w-3 h-3 fill-current' viewBox='0 0 20 20'>
+                    <path d='M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z'/>
+                  </svg>
+                </div>
+                <span className='text-gray-500 text-sm'>|</span>
+                <span className='text-gray-600 text-sm'>{reviewStats.total} Ratings</span>
               </div>
-              <span className='text-gray-500 text-sm'>|</span>
-              <span className='text-gray-600 text-sm'>{reviewStats.total} Ratings</span>
-            </div>
+            )}
 
-            {/* TriBe Price */}
-            <div className='bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-2 mb-4 inline-flex items-center gap-2'>
-              <span className='text-sm'>Get it for as low as</span>
-              <span className='font-bold'>₹{Math.round(productData.price * 0.9)}</span>
-              <svg className='w-4 h-4 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
-              </svg>
-            </div>
-
-            {/* People Bought Badge */}
-            <div className='bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg mb-4 inline-block'>
-              <span className='font-semibold'>165 people</span> bought this in the last 7 days
-            </div>
-
-            {/* Fabric Tag */}
-            <div className='mb-6'>
-              <span className='text-gray-500 text-sm border border-gray-300 px-3 py-1 rounded-full'>Premium Dense Fabric</span>
-            </div>
-
-            {/* Color Selection */}
-            <div className='mb-6'>
-              <p className='font-semibold mb-3'>Colour: <span className='font-normal text-gray-600'>{productData.color || 'Classic'}</span></p>
-              <div className='flex gap-3'>
-                {productData.image.slice(0, 2).map((img, idx) => (
-                  <div 
-                    key={idx}
-                    onClick={() => setImage(img)}
-                    className={`w-16 h-20 rounded-lg overflow-hidden cursor-pointer border-2 ${image === img ? 'border-black' : 'border-gray-200'}`}
-                  >
-                    <img src={img} alt='' className='w-full h-full object-cover' />
-                    {image === img && (
-                      <div className='absolute top-1 right-1 w-5 h-5 bg-black rounded-full flex items-center justify-center'>
-                        <svg className='w-3 h-3 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={3} d='M5 13l4 4L19 7' />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            {/* Material Tag */}
+            {productData.material && (
+              <div className='mb-6'>
+                <span className='text-gray-500 text-sm border border-gray-300 px-3 py-1 rounded-full'>{productData.material}</span>
               </div>
-            </div>
+            )}
+
+            {/* Color/Image Selection - only show if multiple images */}
+            {productData.image && productData.image.length > 1 && (
+              <div className='mb-6'>
+                <p className='font-semibold mb-3'>Select Image</p>
+                <div className='flex gap-3'>
+                  {productData.image.slice(0, 4).map((img, idx) => (
+                    <div 
+                      key={idx}
+                      onClick={() => setImage(img)}
+                      className={`relative w-16 h-20 rounded-lg overflow-hidden cursor-pointer border-2 ${image === img ? 'border-black' : 'border-gray-200'}`}
+                    >
+                      <img src={img} alt='' className='w-full h-full object-cover' />
+                      {image === img && (
+                        <div className='absolute top-1 right-1 w-5 h-5 bg-black rounded-full flex items-center justify-center'>
+                          <svg className='w-3 h-3 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={3} d='M5 13l4 4L19 7' />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Size Selection */}
             {productData.sizes && productData.sizes.length > 0 && (
@@ -265,19 +295,6 @@ const Product = () => {
               </button>
             </div>
 
-            {/* Offers Section */}
-            <div className='mb-6'>
-              <p className='font-semibold mb-3'>Save extra with these offers</p>
-              <div className='border border-gray-200 rounded-lg p-4'>
-                <div className='flex items-center gap-3'>
-                  <span className='text-2xl'>🏷️</span>
-                  <div>
-                    <p className='font-semibold'>Buy 2 for 1199</p>
-                    <p className='text-sm text-gray-500'>Auto applied offer <span className='text-teal-600 font-semibold cursor-pointer'>View all items {'>'}</span></p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Delivery Check */}
             <div className='mb-6'>
@@ -307,37 +324,63 @@ const Product = () => {
               )}
             </div>
 
-            {/* Key Highlights */}
-            <div className='mb-6'>
-              <p className='font-semibold mb-4'>Key Highlights</p>
-              <div className='grid grid-cols-2 gap-4'>
-                {keyHighlights.map((item, idx) => (
-                  <div key={idx} className='border-b border-gray-100 pb-3'>
-                    <p className='text-xs text-gray-500 mb-1'>{item.label}</p>
-                    <p className='font-medium'>{item.value}</p>
-                  </div>
-                ))}
+            {/* Product Details */}
+            {(productData.material || productData.category || productData.subCategory) && (
+              <div className='mb-6'>
+                <p className='font-semibold mb-4'>Product Details</p>
+                <div className='grid grid-cols-2 gap-4'>
+                  {productData.category && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Category</p>
+                      <p className='font-medium'>{typeof productData.category === 'object' ? productData.category?.name : productData.category}</p>
+                    </div>
+                  )}
+                  {productData.subCategory && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Type</p>
+                      <p className='font-medium'>{productData.subCategory}</p>
+                    </div>
+                  )}
+                  {productData.material && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Material</p>
+                      <p className='font-medium'>{productData.material}</p>
+                    </div>
+                  )}
+                  {productData.brand && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Brand</p>
+                      <p className='font-medium'>{productData.brand}</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Accordion Sections */}
+            {/* Product Description & Care */}
             <div className='border-t border-gray-200'>
-              <div className='py-4 border-b border-gray-200'>
-                <button className='w-full flex items-center justify-between'>
-                  <div className='flex items-center gap-3'>
+              {productData.description && (
+                <div className='py-4 border-b border-gray-200'>
+                  <div className='flex items-center gap-3 mb-2'>
                     <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                       <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' />
                     </svg>
-                    <div className='text-left'>
-                      <p className='font-semibold'>Product Description</p>
-                      <p className='text-xs text-gray-500'>Manufacture, Care and Fit</p>
-                    </div>
+                    <p className='font-semibold'>Product Description</p>
                   </div>
-                  <svg className='w-5 h-5 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
-                  </svg>
-                </button>
-              </div>
+                  <p className='text-sm text-gray-600 ml-8'>{productData.description}</p>
+                </div>
+              )}
+              {productData.careInstructions && (
+                <div className='py-4 border-b border-gray-200'>
+                  <div className='flex items-center gap-3 mb-2'>
+                    <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
+                    </svg>
+                    <p className='font-semibold'>Care Instructions</p>
+                  </div>
+                  <p className='text-sm text-gray-600 ml-8'>{productData.careInstructions}</p>
+                </div>
+              )}
               <div className='py-4 border-b border-gray-200'>
                 <button className='w-full flex items-center justify-between'>
                   <div className='flex items-center gap-3'>
@@ -402,90 +445,102 @@ const Product = () => {
                 </button>
               </div>
 
-              {/* Recommendation */}
-              <div className='flex items-center gap-2 mb-6'>
-                <svg className='w-5 h-5 text-green-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5' />
-                </svg>
-                <span className='text-green-600 font-semibold'>89%</span>
-                <span className='text-gray-600'>of verified buyers recommend this product</span>
-              </div>
+              {/* Recommendation - only show if reviews exist */}
+              {reviewStats && reviewStats.total > 0 && (
+                <div className='flex items-center gap-2 mb-6'>
+                  <svg className='w-5 h-5 text-green-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5' />
+                  </svg>
+                  <span className='text-green-600 font-semibold'>{Math.round((reviews.filter(r => r.rating >= 4).length / reviewStats.total) * 100)}%</span>
+                  <span className='text-gray-600'>of verified buyers recommend this product</span>
+                </div>
+              )}
 
               {/* Rating Summary */}
-              <div className='flex gap-8 mb-6'>
-                <div className='text-center'>
-                  <p className='text-5xl font-bold'>{reviewStats.average}</p>
-                  <p className='text-sm text-gray-500'>{reviewStats.total} ratings</p>
-                  <div className='flex justify-center gap-0.5 mt-1'>
-                    {[1,2,3,4,5].map(i => (
-                      <svg key={i} className={`w-4 h-4 ${i <= Math.floor(reviewStats.average) ? 'text-yellow-400 fill-current' : 'text-gray-300 fill-current'}`} viewBox='0 0 20 20'>
-                        <path d='M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z'/>
-                      </svg>
+              {reviewStats && reviewStats.total > 0 ? (
+                <div className='flex gap-8 mb-6'>
+                  <div className='text-center'>
+                    <p className='text-5xl font-bold'>{reviewStats.average}</p>
+                    <p className='text-sm text-gray-500'>{reviewStats.total} ratings</p>
+                    <div className='flex justify-center gap-0.5 mt-1'>
+                      {[1,2,3,4,5].map(i => (
+                        <svg key={i} className={`w-4 h-4 ${i <= Math.floor(reviewStats.average) ? 'text-yellow-400 fill-current' : 'text-gray-300 fill-current'}`} viewBox='0 0 20 20'>
+                          <path d='M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z'/>
+                        </svg>
+                      ))}
+                    </div>
+                  </div>
+                  <div className='flex-1'>
+                    {reviewStats.distribution.map((item, idx) => (
+                      <div key={idx} className='flex items-center gap-2 mb-1'>
+                        <span className='w-3 text-sm'>{item.stars}</span>
+                        <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
+                          <div 
+                            className={`h-full rounded-full ${item.stars >= 4 ? 'bg-green-500' : item.stars === 3 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                            style={{ width: `${item.percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className='text-xs text-gray-500 w-10'>({item.count})</span>
+                      </div>
                     ))}
                   </div>
-                  <button className='mt-3 px-6 py-2 border border-teal-600 text-teal-600 rounded-lg font-semibold text-sm hover:bg-teal-50 transition-colors'>
-                    RATE
-                  </button>
                 </div>
-                <div className='flex-1'>
-                  {reviewStats.distribution.map((item, idx) => (
-                    <div key={idx} className='flex items-center gap-2 mb-1'>
-                      <span className='w-3 text-sm'>{item.stars}</span>
-                      <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
-                        <div 
-                          className={`h-full rounded-full ${item.stars >= 4 ? 'bg-green-500' : item.stars === 3 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                          style={{ width: `${item.percentage}%` }}
-                        ></div>
+              ) : (
+                <div className='text-center py-8'>
+                  <p className='text-gray-500 mb-4'>No reviews yet</p>
+                  <p className='text-sm text-gray-400'>Be the first to review this product!</p>
+                </div>
+              )}
+
+              {/* Review Filters - only show if reviews exist */}
+              {reviewStats && reviewStats.total > 0 && (
+                <div className='mb-6'>
+                  <p className='font-semibold mb-3'>Customer Reviews ({reviewStats.total})</p>
+                </div>
+              )}
+
+              {/* Reviews List */}
+              {loadingReviews ? (
+                <div className='flex justify-center py-8'>
+                  <div className='animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full'></div>
+                </div>
+              ) : reviews.length > 0 ? (
+                <div className='space-y-4'>
+                  {reviews.slice(0, 3).map((review, idx) => (
+                    <div key={idx} className='border-t border-gray-200 pt-4'>
+                      <div className='flex items-center gap-1 mb-2'>
+                        {[1,2,3,4,5].map(i => (
+                          <svg key={i} className={`w-4 h-4 ${i <= review.rating ? 'text-yellow-400' : 'text-gray-300'} fill-current`} viewBox='0 0 20 20'>
+                            <path d='M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z'/>
+                          </svg>
+                        ))}
+                        {review.verifiedPurchase && (
+                          <span className='ml-2 text-green-600 text-sm font-semibold flex items-center gap-1'>
+                            <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                              <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
+                            </svg>
+                            Verified Purchase
+                          </span>
+                        )}
                       </div>
-                      <span className='text-xs text-gray-500 w-10'>({item.count})</span>
+                      {review.title && <p className='font-semibold mb-1'>{review.title}</p>}
+                      <p className='text-gray-700 mb-2'>{review.comment}</p>
+                      <p className='text-xs text-gray-500'>
+                        {review.userId?.name || 'Anonymous'} • {new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Review Filters */}
-              <div className='mb-6'>
-                <p className='font-semibold mb-3'>Hear what our customers say ({reviewStats.total})</p>
-                <div className='flex flex-wrap gap-2'>
-                  {['Most Helpful', 'Most Recent', 'Product Quality', 'Material', 'Fit', 'Value For Money'].map((filter) => (
-                    <button 
-                      key={filter}
-                      onClick={() => setReviewFilter(filter)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        reviewFilter === filter 
-                          ? 'bg-black text-white' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {filter}
+                  {reviews.length > 3 && (
+                    <button className='w-full mt-6 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors'>
+                      View all {reviews.length} Reviews
                     </button>
-                  ))}
+                  )}
                 </div>
-              </div>
-
-              {/* Sample Review */}
-              <div className='border-t border-gray-200 pt-4'>
-                <div className='flex items-center gap-1 mb-2'>
-                  {[1,2,3,4,5].map(i => (
-                    <svg key={i} className='w-4 h-4 text-yellow-400 fill-current' viewBox='0 0 20 20'>
-                      <path d='M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z'/>
-                    </svg>
-                  ))}
-                  <span className='ml-2 text-green-600 text-sm font-semibold flex items-center gap-1'>
-                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
-                      <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
-                    </svg>
-                    Verified Buyer
-                  </span>
+              ) : reviewStats && reviewStats.total === 0 ? (
+                <div className='text-center py-6 text-gray-500'>
+                  <p>No reviews yet. Be the first to review!</p>
                 </div>
-                <p className='text-gray-700 mb-2'>Great quality product! The fabric is soft and comfortable. Perfect fit as expected. Highly recommended!</p>
-                <p className='text-xs text-gray-500'>Rahul S. • 2 days ago</p>
-              </div>
-
-              {/* View All Reviews Button */}
-              <button className='w-full mt-6 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors'>
-                View all Reviews
-              </button>
+              ) : null}
             </div>
           </div>
         </div>

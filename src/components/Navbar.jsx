@@ -76,9 +76,10 @@ const Navbar = () => {
         setLocationInput(value);
         
         if (value.length > 2) {
-            if (!autocompleteService.current) {
+            // Check if Google Maps API is loaded
+            if (!googleMapsLoaded || !autocompleteService.current) {
                 console.warn('Google Places API not loaded yet. Please wait...');
-                toast.error('Location service is loading. Please try again in a moment.');
+                setPredictions([]);
                 return;
             }
             
@@ -93,7 +94,6 @@ const Navbar = () => {
                         setPredictions(predictions);
                     } else if (status === window.google?.maps?.places?.PlacesServiceStatus?.ZERO_RESULTS) {
                         setPredictions([]);
-                        console.log('No results found for:', value);
                     } else {
                         setPredictions([]);
                         console.error('Places API error:', status);
@@ -477,7 +477,13 @@ const Navbar = () => {
 
               {/* Predictions */}
               <div className='max-h-96 overflow-y-auto'>
-                {predictions.length > 0 ? (
+                {!googleMapsLoaded ? (
+                  <div className='text-center text-gray-500 py-8'>
+                    <div className='animate-spin w-8 h-8 border-4 border-gray-300 border-t-black rounded-full mx-auto mb-3'></div>
+                    <p className='font-medium'>Loading location service...</p>
+                    <p className='text-sm text-gray-400 mt-1'>Please wait a moment</p>
+                  </div>
+                ) : predictions.length > 0 ? (
                   <div className='space-y-2'>
                     {predictions.map((prediction) => (
                       <button

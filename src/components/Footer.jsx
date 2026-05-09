@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { assets } from '../assets/assets'
 
 const Footer = () => {
   return (
@@ -9,11 +10,8 @@ const Footer = () => {
           
           {/* Brand Section */}
           <div className='space-y-4'>
-            <div className='flex items-center gap-2'>
-              <div className='w-8 h-8 bg-white flex items-center justify-center'>
-                <span className='text-black font-bold text-xl'>L</span>
-              </div>
-              <span className='text-2xl font-bold tracking-tight'>LOCOXO</span>
+            <div className='flex items-center'>
+              <img src={assets.logo_white} alt='LOCOXO' className='h-8 w-auto object-contain' />
             </div>
             <p className='text-gray-400 text-sm leading-relaxed'>
               Premium fashion for the modern trendsetter. Elevate your style with curated collections that speak to your individuality.

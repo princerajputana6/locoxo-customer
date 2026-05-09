@@ -140,22 +140,53 @@ const YourFavorites = () => {
 
         {/* Featured Categories Banner */}
         <div className='mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-          {tabs.map((tab, index) => (
-            <div
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className='relative group cursor-pointer overflow-hidden rounded-xl h-48 bg-gradient-to-br from-gray-900 to-gray-700'
-            >
-              <div className='absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300'></div>
-              <div className='relative h-full flex flex-col items-center justify-center text-white'>
-                <div className='text-5xl mb-3 transform group-hover:scale-125 transition-transform duration-300'>
-                  {tab.icon}
+          {tabs.map((tab, index) => {
+            // Get category image from categories context
+            const category = categories.find(cat => 
+              cat.name.toLowerCase().includes(tab.id) || 
+              tab.id.includes(cat.name.toLowerCase())
+            );
+            
+            // Default images for each tab if no category image found
+            const defaultImages = {
+              anime: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&q=80',
+              superhero: 'https://images.unsplash.com/photo-1635863138275-d9b33299680b?w=800&q=80',
+              movies: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80',
+              gaming: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80'
+            };
+            
+            const imageUrl = category?.image || defaultImages[tab.id];
+            
+            return (
+              <div
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  navigate(`/collection?theme=${tab.id}`);
+                }}
+                className='relative group cursor-pointer overflow-hidden rounded-xl h-64 sm:h-72'
+              >
+                {/* Background Image */}
+                <img 
+                  src={imageUrl} 
+                  alt={tab.label}
+                  className='absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
+                />
+                
+                {/* Gradient Overlay */}
+                <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/70 transition-colors duration-300'></div>
+                
+                {/* Content */}
+                <div className='relative h-full flex flex-col items-center justify-end text-white p-6'>
+                  <h3 className='text-2xl font-bold mb-2 transform group-hover:scale-105 transition-transform duration-300'>
+                    {tab.label}
+                  </h3>
+                  <p className='text-sm text-white/90 mb-3'>Explore Collection</p>
+                  <div className='w-12 h-1 bg-white/50 group-hover:w-20 group-hover:bg-white transition-all duration-300'></div>
                 </div>
-                <h3 className='text-xl font-bold'>{tab.label}</h3>
-                <p className='text-sm text-white/80 mt-1'>Explore Collection</p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

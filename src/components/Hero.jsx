@@ -7,6 +7,7 @@ const Hero = () => {
   const { categories } = useContext(ShopContext);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slides, setSlides] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Default images for categories
   const categoryImages = {
@@ -38,6 +39,7 @@ const Hero = () => {
         categorySlides.push(slideCategories);
       }
       setSlides(categorySlides);
+      setLoading(false);
     }
   }, [categories]);
 
@@ -55,16 +57,16 @@ const Hero = () => {
     navigate(`/collection?category=${category}`);
   };
 
-  if (slides.length === 0) {
+  if (loading) {
     return (
-      <div className='relative w-full h-[700px] sm:h-[500px] md:h-[600px] bg-gray-100 flex items-center justify-center'>
+      <div className='relative w-full h-[90vh] bg-gray-100 flex items-center justify-center'>
         <p className='text-gray-500'>Loading categories...</p>
       </div>
     );
   }
 
   return (
-    <div className='relative w-full h-[700px] sm:h-[500px] md:h-[600px] bg-white overflow-hidden'>
+    <div className='relative w-full h-[90vh] bg-white overflow-hidden'>
       {/* Slider Container */}
       <div 
         className='flex transition-transform duration-700 ease-in-out h-full'

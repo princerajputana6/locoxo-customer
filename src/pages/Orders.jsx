@@ -25,6 +25,7 @@ const Orders = () => {
             item['paymentMethod'] = order.paymentMethod
             item['date'] = order.date
             item['orderId'] = order._id
+            item['orderNumber'] = order.orderNumber
             allOrdersItem.push(item)
           })
         })
@@ -33,6 +34,27 @@ const Orders = () => {
       
     } catch (error) {
       
+    }
+  }
+
+  const downloadInvoice = async (orderId) => {
+    try {
+      const response = await axios.get(backendUrl + `/api/order/invoice/${orderId}`, {
+        headers: { token },
+        responseType: 'blob'
+      });
+      
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Failed to download invoice. Please try again.');
     }
   }
 
@@ -79,9 +101,22 @@ const Orders = () => {
                                 <div className='w-2 h-2 rounded-full bg-green-500'></div>
                                 <span className='text-sm font-medium'>{item.status}</span>
                             </div>
-                            <button onClick={()=>navigate('/track-order/' + item.orderId)} className='bg-black text-white px-6 py-2 text-sm font-semibold hover:bg-gray-800 transition-colors'>
-                              TRACK ORDER
-                            </button>
+                            <div className='flex flex-col gap-2 w-full md:w-auto'>
+                              <button onClick={()=>navigate('/track-order/' + item.orderId)} className='bg-black text-white px-6 py-2 text-sm font-semibold hover:bg-gray-800 transition-colors'>
+                                TRACK ORDER
+                              </button>
+                              {item.orderNumber && (
+                                <button 
+                                  onClick={() => downloadInvoice(item.orderId)} 
+                                  className='border-2 border-black text-black px-6 py-2 text-sm font-semibold hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2'
+                                >
+                                  <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' />
+                                  </svg>
+                                  INVOICE
+                                </button>
+                              )}
+                            </div>
                         </div>
                     </div>
                 </div>

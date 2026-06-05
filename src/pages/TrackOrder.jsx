@@ -2,25 +2,29 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext'
 import axios from 'axios'
-import { Package, Truck, CheckCircle, Clock } from 'lucide-react'
+import { Package, Truck, CheckCircle, Clock, Radio } from 'lucide-react'
+import { useOrderRealtime } from '../hooks/useOrderRealtime'
 
 const TrackOrder = () => {
   const { orderId } = useParams()
   const { backendUrl, token, currency } = useContext(ShopContext)
   const [orderData, setOrderData] = useState(null)
+  const [shipment, setShipment] = useState(null)
   const [loading, setLoading] = useState(true)
+  const liveUpdate = useOrderRealtime(orderId)
 
   const loadOrderData = async () => {
     try {
-      if (!token) {
-        return
-      }
-
-      const response = await axios.post(backendUrl + '/api/order/userorders', {}, { headers: { token } })
-      if (response.data.success) {
-        const order = response.data.orders.find(order => order._id === orderId)
+      if (!token) return
+      const [orderRes, shipRes] = await Promise.all([
+        axios.post(backendUrl + '/api/order/userorders', {}, { headers: { token } }),
+        axios.get(backendUrl + '/api/shipment/order/' + orderId, { headers: { token } }).catch(() => null)
+      ])
+      if (orderRes.data.success) {
+        const order = orderRes.data.orders.find(o => o._id === orderId)
         setOrderData(order)
       }
+      if (shipRes?.data?.success) setShipment(shipRes.data.shipment)
       setLoading(false)
     } catch (error) {
       console.log(error)
@@ -28,9 +32,14 @@ const TrackOrder = () => {
     }
   }
 
+  useEffect(() => { loadOrderData() }, [token, orderId])
+
+  // Apply live socket pushes
   useEffect(() => {
-    loadOrderData()
-  }, [token, orderId])
+    if (!liveUpdate) return
+    if (liveUpdate.shipment) setShipment(liveUpdate.shipment)
+    if (liveUpdate.orderStatus) setOrderData((o) => o ? { ...o, status: liveUpdate.orderStatus } : o)
+  }, [liveUpdate])
 
   const getStatusSteps = () => {
     const steps = [
@@ -76,7 +85,13 @@ const TrackOrder = () => {
   return (
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-10'>
       <div className='max-w-4xl mx-auto'>
-        <h1 className='text-3xl font-bold mb-8'>Track Your Order</h1>
+        <div className='flex items-center justify-between mb-8'>
+          <h1 className='text-3xl font-bold'>Track Your Order</h1>
+          <span className='inline-flex items-center gap-1.5 text-xs font-semibold text-green-700'>
+            <Radio className='w-3 h-3 animate-pulse' />
+            LIVE
+          </span>
+        </div>
 
         {/* Order Info */}
         <div className='bg-gray-50 p-6 mb-8'>
@@ -128,6 +143,55 @@ const TrackOrder = () => {
             </div>
           </div>
         </div>
+
+        {/* Shipment Details */}
+        {shipment && (
+          <div className='bg-white border border-gray-200 p-6 mb-8'>
+            <div className='flex flex-wrap items-center justify-between gap-3 mb-5'>
+              <h2 className='text-xl font-bold'>Shipment Tracking</h2>
+              <span className='text-xs uppercase tracking-widest text-gray-500'>
+                {shipment.provider} · AWB {shipment.awb}
+              </span>
+            </div>
+            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-sm'>
+              <div>
+                <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Status</p>
+                <p className='font-semibold capitalize'>{shipment.status?.replace(/_/g, ' ')}</p>
+              </div>
+              <div>
+                <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Current Location</p>
+                <p className='font-semibold'>{shipment.currentLocation || '—'}</p>
+              </div>
+              <div>
+                <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Expected Delivery</p>
+                <p className='font-semibold'>{shipment.expectedDelivery ? new Date(shipment.expectedDelivery).toLocaleDateString() : '—'}</p>
+              </div>
+            </div>
+            {shipment.events?.length > 0 && (
+              <div className='border-t border-gray-200 pt-5'>
+                <p className='text-xs uppercase tracking-widest text-gray-500 mb-4'>Activity</p>
+                <ol className='space-y-3'>
+                  {[...shipment.events].reverse().map((e) => (
+                    <li key={e._id} className='flex gap-4 text-sm'>
+                      <div className='flex flex-col items-center'>
+                        <div className='w-2 h-2 rounded-full bg-black mt-1.5'></div>
+                        <div className='w-px flex-1 bg-gray-200'></div>
+                      </div>
+                      <div className='flex-1 pb-3'>
+                        <p className='font-semibold capitalize'>{e.status?.replace(/_/g, ' ')}</p>
+                        {e.description && <p className='text-xs text-gray-600'>{e.description}</p>}
+                        <p className='text-[11px] text-gray-400 mt-0.5'>
+                          {e.location && <>{e.location} · </>}
+                          {new Date(e.timestamp).toLocaleString()}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Order Items */}
         <div className='bg-white border border-gray-200 p-6 mb-8'>

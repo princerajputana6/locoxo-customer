@@ -6,7 +6,7 @@ import PriceBasedCombo from '../components/PriceBasedCombo'
 import BestSeller from '../components/BestSeller'
 import NewArrivals from '../components/NewArrivals'
 import VideoIntro from '../components/VideoIntro'
-import YourFavorites from '../components/YourFavorites'
+import ComboDeals from '../components/ComboDeals'
 import OurPolicy from '../components/OurPolicy'
 import BannerDisplay from '../components/BannerDisplay'
 import axios from 'axios'
@@ -74,9 +74,9 @@ const Home = () => {
         <BannerDisplay key={`after-video-intro-${index}`} banner={banner} />
       ))}
       
-      <YourFavorites />
-      {getBannersForPlacement('after-favorites').map((banner, index) => (
-        <BannerDisplay key={`after-favorites-${index}`} banner={banner} />
+      <ComboDeals />
+      {getBannersForPlacement('after-combo-deals').map((banner, index) => (
+        <BannerDisplay key={`after-combo-deals-${index}`} banner={banner} />
       ))}
       
       <OurPolicy />

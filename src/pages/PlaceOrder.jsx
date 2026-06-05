@@ -1,32 +1,57 @@
-import React, { useContext, useState } from 'react'
-import Title from '../components/Title'
+import React, { useContext, useEffect, useState } from 'react'
 import CartTotal from '../components/CartTotal'
-import { assets } from '../assets/assets'
+import AddressForm from '../components/AddressForm'
 import { ShopContext } from '../context/ShopContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { Home, Briefcase, MapPin, Plus, Check } from 'lucide-react'
+
+const typeIcon = (t) => (t === 'work' ? Briefcase : t === 'other' ? MapPin : Home)
 
 const PlaceOrder = () => {
+    const [method, setMethod] = useState('cod')
+    const [showLoginMessage, setShowLoginMessage] = useState(false)
+    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext)
 
-    const [method, setMethod] = useState('cod');
-    const [showLoginMessage, setShowLoginMessage] = useState(false);
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        street: '',
-        city: '',
-        state: '',
-        zipcode: '',
-        country: '',
-        phone: ''
-    })
+    const [user, setUser] = useState(null)
+    const [addresses, setAddresses] = useState([])
+    const [selectedAddressId, setSelectedAddressId] = useState(null)
+    const [showNewAddress, setShowNewAddress] = useState(false)
 
-    const onChangeHandler = (event) => {
-        const name = event.target.name
-        const value = event.target.value
-        setFormData(data => ({ ...data, [name]: value }))
+    // Email is always editable (user may want to send to a different one), prefilled from profile
+    const [email, setEmail] = useState('')
+
+    useEffect(() => {
+        if (!token) return
+        const load = async () => {
+            try {
+                const { data } = await axios.get(backendUrl + '/api/user/profile', { headers: { token } })
+                if (data.success) {
+                    setUser(data.user)
+                    setEmail(data.user.email || '')
+                    setAddresses(data.user.addresses || [])
+                    const def = data.user.addresses?.find(a => a.isDefault) || data.user.addresses?.[0]
+                    if (def) setSelectedAddressId(def._id)
+                    else setShowNewAddress(true)
+                }
+            } catch (err) { console.error(err) }
+        }
+        load()
+    }, [token])
+
+    const selectedAddress = addresses.find(a => a._id === selectedAddressId)
+
+    const saveNewAddress = async (addr) => {
+        try {
+            const { data } = await axios.post(backendUrl + '/api/user/address', addr, { headers: { token } })
+            if (data.success) {
+                toast.success('Address saved')
+                setAddresses(data.addresses)
+                const newest = data.addresses[data.addresses.length - 1]
+                if (newest) setSelectedAddressId(newest._id)
+                setShowNewAddress(false)
+            } else toast.error(data.message)
+        } catch { toast.error('Failed to save address') }
     }
 
     const initPay = (order) => {
@@ -34,47 +59,38 @@ const PlaceOrder = () => {
             key: import.meta.env.VITE_RAZORPAY_KEY_ID,
             amount: order.amount,
             currency: order.currency,
-            name:'Order Payment',
-            description:'Order Payment',
+            name: 'Order Payment',
+            description: 'Order Payment',
             order_id: order.id,
             receipt: order.receipt,
             handler: async (response) => {
-                console.log(response)
                 try {
-                    
-                    const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay',response,{headers:{token}})
-                    if (data.success) {
-                        navigate('/orders')
-                        setCartItems({})
-                    }
-                } catch (error) {
-                    console.log(error)
-                    toast.error(error)
-                }
+                    const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay', response, { headers: { token } })
+                    if (data.success) { navigate('/orders'); setCartItems({}) }
+                } catch (error) { toast.error(error.message) }
             }
         }
-        const rzp = new window.Razorpay(options)
-        rzp.open()
+        new window.Razorpay(options).open()
     }
 
     const onSubmitHandler = async (event) => {
         event.preventDefault()
-        
-        // Check if user is logged in
         if (!token) {
             setShowLoginMessage(true)
             setTimeout(() => setShowLoginMessage(false), 5000)
             return
         }
-        
+        if (!selectedAddress) {
+            toast.error('Please add or select a delivery address')
+            return
+        }
+
         try {
-
-            let orderItems = []
-
+            const orderItems = []
             for (const items in cartItems) {
                 for (const item in cartItems[items]) {
                     if (cartItems[items][item] > 0) {
-                        const itemInfo = structuredClone(products.find(product => product._id === items))
+                        const itemInfo = structuredClone(products.find(p => p._id === items))
                         if (itemInfo) {
                             orderItems.push({
                                 productId: itemInfo._id,
@@ -89,74 +105,59 @@ const PlaceOrder = () => {
                 }
             }
 
-            // Generate order number
             const orderNumber = 'ORD' + Date.now() + Math.floor(Math.random() * 1000)
-            
-            // Calculate subtotal
             const subtotal = getCartAmount()
-            
-            // Get referral code from localStorage if exists
             const referralCode = localStorage.getItem('referralCode')
 
-            let orderData = {
-                orderNumber: orderNumber,
+            const orderData = {
+                orderNumber,
                 items: orderItems,
-                subtotal: subtotal,
+                subtotal,
                 shippingCharge: delivery_fee,
                 amount: subtotal + delivery_fee,
+                email,
                 address: {
-                    name: formData.firstName + ' ' + formData.lastName,
-                    phone: formData.phone,
-                    addressLine1: formData.street,
-                    addressLine2: '',
-                    city: formData.city,
-                    state: formData.state,
-                    pincode: formData.zipcode,
-                    country: formData.country
+                    name: selectedAddress.name || user?.name,
+                    phone: selectedAddress.phone || user?.phone,
+                    addressLine1: selectedAddress.street,
+                    addressLine2: [selectedAddress.addressLine2, selectedAddress.landmark].filter(Boolean).join(' · '),
+                    city: selectedAddress.city,
+                    state: selectedAddress.state,
+                    pincode: selectedAddress.zipCode,
+                    country: selectedAddress.country
                 }
             }
-            
-            // Add referral code if exists
-            if (referralCode) {
-                orderData.referralCode = referralCode
+            if (referralCode) orderData.referralCode = referralCode
+
+            if (method === 'cod') {
+                const { data } = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token } })
+                if (data.success) {
+                    setCartItems({})
+                    localStorage.removeItem('referralCode')
+                    navigate('/orders')
+                } else toast.error(data.message)
+            } else {
+                const { data } = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
+                if (data.success) initPay(data.order)
+                else toast.error(data.message)
             }
-            
-            console.log('Sending Order Data:', orderData);
-
-            switch (method) {
-
-                // API Calls for COD
-                case 'cod':
-                    const response = await axios.post(backendUrl + '/api/order/place',orderData,{headers:{token}})
-                    if (response.data.success) {
-                        setCartItems({})
-                        localStorage.removeItem('referralCode') // Clear referral code after order
-                        navigate('/orders')
-                    } else {
-                        toast.error(response.data.message)
-                    }
-                    break;
-
-                case 'razorpay':
-                    const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, {headers:{token}})
-                    if (responseRazorpay.data.success) {
-                        initPay(responseRazorpay.data.order)
-                    } else {
-                        toast.error(responseRazorpay.data.message)
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-
         } catch (error) {
             console.log(error)
             toast.error(error.message)
         }
     }
 
+    if (!token) {
+        return (
+            <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-20 text-center'>
+                <h1 className='text-2xl font-bold mb-4'>Sign in to continue</h1>
+                <p className='text-gray-600 mb-6'>You need an account to place an order.</p>
+                <button onClick={() => navigate('/login')} className='bg-black text-white px-8 py-3 font-semibold uppercase tracking-wide hover:bg-gray-800'>
+                    Go to Login
+                </button>
+            </div>
+        )
+    }
 
     return (
         <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-10'>
@@ -166,108 +167,142 @@ const PlaceOrder = () => {
             </div>
 
             <form onSubmit={onSubmitHandler} className='flex flex-col lg:flex-row gap-8'>
-                {/* ------------- Left Side - Delivery Info ---------------- */}
-                <div className='flex-1'>
-                    <h2 className='text-xl font-bold mb-6'>DELIVERY INFORMATION</h2>
-                    
-                    <div className='space-y-4'>
-                        <div className='grid grid-cols-2 gap-4'>
-                            <div>
-                                <label className='block text-sm font-semibold mb-2'>FIRST NAME</label>
-                                <input required onChange={onChangeHandler} name='firstName' value={formData.firstName} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="text" placeholder='John' />
+                {/* Left */}
+                <div className='flex-1 space-y-8'>
+                    {/* Account summary */}
+                    {user && (
+                        <section className='border border-gray-200 p-5 sm:p-6'>
+                            <div className='flex flex-wrap items-center justify-between gap-3 mb-4'>
+                                <h2 className='text-sm font-bold uppercase tracking-wide'>Your Details</h2>
+                                <button type='button' onClick={() => navigate('/profile')} className='text-xs font-semibold uppercase tracking-wide hover:underline'>
+                                    Edit in profile
+                                </button>
                             </div>
-                            <div>
-                                <label className='block text-sm font-semibold mb-2'>LAST NAME</label>
-                                <input required onChange={onChangeHandler} name='lastName' value={formData.lastName} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="text" placeholder='Doe' />
+                            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm'>
+                                <div>
+                                    <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Name</p>
+                                    <p className='font-medium'>{user.name}</p>
+                                </div>
+                                <div>
+                                    <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Phone</p>
+                                    <p className='font-medium'>{user.phone || '—'}</p>
+                                </div>
+                                <div>
+                                    <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Email</p>
+                                    <input
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        type='email'
+                                        required
+                                        className='w-full font-medium bg-transparent border-b border-gray-300 focus:border-black outline-none pb-0.5'
+                                    />
+                                </div>
                             </div>
+                        </section>
+                    )}
+
+                    {/* Delivery address */}
+                    <section>
+                        <div className='flex flex-wrap items-center justify-between gap-3 mb-4'>
+                            <h2 className='text-xl font-bold uppercase tracking-tight'>Delivery Address</h2>
+                            {!showNewAddress && (
+                                <button
+                                    type='button'
+                                    onClick={() => setShowNewAddress(true)}
+                                    className='inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide hover:underline'
+                                >
+                                    <Plus className='w-4 h-4' /> Add new address
+                                </button>
+                            )}
                         </div>
-                        
-                        <div>
-                            <label className='block text-sm font-semibold mb-2'>EMAIL ADDRESS</label>
-                            <input required onChange={onChangeHandler} name='email' value={formData.email} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="email" placeholder='you@example.com' />
-                        </div>
-                        
-                        <div>
-                            <label className='block text-sm font-semibold mb-2'>STREET ADDRESS</label>
-                            <input required onChange={onChangeHandler} name='street' value={formData.street} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="text" placeholder='123 Main Street' />
-                        </div>
-                        
-                        <div className='grid grid-cols-2 gap-4'>
-                            <div>
-                                <label className='block text-sm font-semibold mb-2'>CITY</label>
-                                <input required onChange={onChangeHandler} name='city' value={formData.city} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="text" placeholder='Mumbai' />
+
+                        {showNewAddress ? (
+                            <div className='border border-gray-200 p-5 sm:p-6'>
+                                <AddressForm
+                                    initial={{ name: user?.name, phone: user?.phone }}
+                                    onSubmit={saveNewAddress}
+                                    onCancel={addresses.length > 0 ? () => setShowNewAddress(false) : undefined}
+                                    submitLabel='Use This Address'
+                                />
                             </div>
-                            <div>
-                                <label className='block text-sm font-semibold mb-2'>STATE</label>
-                                <input onChange={onChangeHandler} name='state' value={formData.state} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="text" placeholder='Maharashtra' />
+                        ) : addresses.length === 0 ? (
+                            <div className='text-center py-10 border border-dashed border-gray-200'>
+                                <MapPin className='w-10 h-10 mx-auto mb-3 text-gray-300' strokeWidth={1.5} />
+                                <p className='font-semibold text-sm'>No saved addresses</p>
+                                <button type='button' onClick={() => setShowNewAddress(true)} className='mt-3 text-sm font-semibold underline'>
+                                    Add one
+                                </button>
                             </div>
-                        </div>
-                        
-                        <div className='grid grid-cols-2 gap-4'>
-                            <div>
-                                <label className='block text-sm font-semibold mb-2'>ZIP CODE</label>
-                                <input required onChange={onChangeHandler} name='zipcode' value={formData.zipcode} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="number" placeholder='400001' />
+                        ) : (
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                {addresses.map((a) => {
+                                    const Icon = typeIcon(a.type)
+                                    const active = a._id === selectedAddressId
+                                    return (
+                                        <button
+                                            type='button'
+                                            key={a._id}
+                                            onClick={() => setSelectedAddressId(a._id)}
+                                            className={`text-left border p-5 transition-colors relative ${active ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'}`}
+                                        >
+                                            {active && (
+                                                <div className='absolute top-3 right-3 w-5 h-5 rounded-full bg-black text-white flex items-center justify-center'>
+                                                    <Check className='w-3 h-3' strokeWidth={3} />
+                                                </div>
+                                            )}
+                                            <div className='flex items-center gap-2 mb-2'>
+                                                <Icon className='w-4 h-4' strokeWidth={1.5} />
+                                                <span className='text-[10px] uppercase tracking-widest font-semibold'>{a.type || 'home'}</span>
+                                                {a.isDefault && <span className='text-[10px] uppercase tracking-widest font-semibold text-gray-500'>· Default</span>}
+                                            </div>
+                                            <p className='text-sm font-semibold'>{a.name}</p>
+                                            <p className='text-xs text-gray-500 mb-2'>{a.phone}</p>
+                                            <p className='text-sm text-gray-700'>{a.street}</p>
+                                            {a.addressLine2 && <p className='text-sm text-gray-700'>{a.addressLine2}</p>}
+                                            <p className='text-sm text-gray-700'>{a.city}, {a.state} {a.zipCode}</p>
+                                        </button>
+                                    )
+                                })}
                             </div>
-                            <div>
-                                <label className='block text-sm font-semibold mb-2'>COUNTRY</label>
-                                <input required onChange={onChangeHandler} name='country' value={formData.country} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="text" placeholder='India' />
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label className='block text-sm font-semibold mb-2'>PHONE NUMBER</label>
-                            <input required onChange={onChangeHandler} name='phone' value={formData.phone} className='w-full px-4 py-3 border-2 border-gray-300 focus:border-black outline-none transition-colors' type="number" placeholder='+91 9876543210' />
-                        </div>
-                    </div>
+                        )}
+                    </section>
                 </div>
 
-                {/* ------------- Right Side - Order Summary ------------------ */}
+                {/* Right */}
                 <div className='lg:w-96'>
                     <div className='border border-gray-200 p-6 sticky top-24'>
-                        <h2 className='text-xl font-bold mb-6'>ORDER SUMMARY</h2>
+                        <h2 className='text-xl font-bold mb-6 uppercase tracking-tight'>Order Summary</h2>
                         <CartTotal />
-                        
+
                         <div className='mt-8'>
-                            <h3 className='text-sm font-bold mb-4'>PAYMENT METHOD</h3>
-                            
+                            <h3 className='text-sm font-bold mb-4 uppercase tracking-wide'>Payment Method</h3>
+
                             {showLoginMessage && (
-                                <div className='mb-4 p-4 bg-red-50 border border-red-200 rounded-lg'>
+                                <div className='mb-4 p-4 bg-red-50 border border-red-200'>
                                     <p className='text-sm text-red-800 font-medium'>Please log in to place an order</p>
-                                    <button 
-                                        onClick={() => navigate('/login')}
-                                        className='mt-2 text-sm text-red-600 underline hover:text-red-800'
-                                    >
+                                    <button onClick={() => navigate('/login')} className='mt-2 text-sm text-red-600 underline hover:text-red-800'>
                                         Go to Login
                                     </button>
                                 </div>
                             )}
-                            
+
                             <div className='space-y-3'>
-                                <label onClick={() => setMethod('cod')} className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${
-                                    method === 'cod' ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'
-                                }`}>
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                        method === 'cod' ? 'border-black' : 'border-gray-300'
-                                    }`}>
-                                        {method === 'cod' && <div className='w-3 h-3 rounded-full bg-black'></div>}
-                                    </div>
-                                    <span className='text-sm font-medium'>CASH ON DELIVERY</span>
-                                </label>
-                                
-                                <label onClick={() => setMethod('razorpay')} className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${
-                                    method === 'razorpay' ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'
-                                }`}>
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                        method === 'razorpay' ? 'border-black' : 'border-gray-300'
-                                    }`}>
-                                        {method === 'razorpay' && <div className='w-3 h-3 rounded-full bg-black'></div>}
-                                    </div>
-                                    <span className='text-sm font-medium'>PAY ONLINE</span>
-                                </label>
+                                {['cod', 'razorpay'].map((m) => (
+                                    <label
+                                        key={m}
+                                        onClick={() => setMethod(m)}
+                                        className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${method === m ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
+                                    >
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === m ? 'border-black' : 'border-gray-300'}`}>
+                                            {method === m && <div className='w-3 h-3 rounded-full bg-black'></div>}
+                                        </div>
+                                        <span className='text-sm font-medium'>{m === 'cod' ? 'CASH ON DELIVERY' : 'PAY ONLINE'}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
-                        <button type='submit' className='w-full bg-black text-white py-4 font-semibold tracking-wide hover:bg-gray-800 transition-colors mt-6'>
+                        <button type='submit' disabled={!selectedAddress} className='w-full bg-black text-white py-4 font-semibold tracking-wide hover:bg-gray-800 transition-colors mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed'>
                             PLACE ORDER
                         </button>
                     </div>

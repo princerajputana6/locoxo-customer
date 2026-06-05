@@ -18,6 +18,9 @@ import PromoStrip from './components/PromoStrip'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify'
+import CookiesPolicy from './pages/CookiesPolicy'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import GrievancePolicy from './pages/GrievancePolicy'
 
 const App = () => {
   return (
@@ -39,6 +42,9 @@ const App = () => {
         <Route path='/profile' element={<Profile />} />
         <Route path='/track-order/:orderId' element={<TrackOrder />} />
         <Route path='/verify' element={<Verify />} />
+        <Route path='/cookies-policy' element={<CookiesPolicy />} />
+        <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+        <Route path='/grievance-policy' element={<GrievancePolicy />} />
       </Routes>
       <Footer />
     </div>

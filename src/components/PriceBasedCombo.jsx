@@ -97,7 +97,7 @@ const PriceBasedCombo = () => {
               <span className='absolute top-3 left-3 bg-white/95 backdrop-blur text-[10px] uppercase tracking-widest font-semibold px-2.5 py-1'>
                 {combo.badge}
               </span>
-              <span className='absolute top-3 right-3 bg-black text-white text-[10px] uppercase tracking-widest font-semibold px-2.5 py-1'>
+              <span className='absolute top-3 right-3 bg-locoxo-orange text-white text-[10px] uppercase tracking-widest font-semibold px-2.5 py-1'>
                 {combo.discount}
               </span>
             </div>
@@ -127,7 +127,7 @@ const PriceBasedCombo = () => {
         </p>
         <button
           onClick={() => navigate('/collection')}
-          className='inline-flex items-center gap-2 bg-black text-white px-8 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 transition-colors'
+          className='inline-flex items-center gap-2 bg-locoxo-orange text-white px-8 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark transition-colors'
         >
           Browse all products
           <ArrowRight className='w-4 h-4' />

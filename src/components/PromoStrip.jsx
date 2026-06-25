@@ -10,7 +10,7 @@ const PromoStrip = () => {
   ];
 
   return (
-    <div className='bg-black text-white py-2 overflow-hidden'>
+    <div className='bg-locoxo-orange text-white py-2 overflow-hidden'>
       <div className='marquee-container'>
         <div className='marquee-content'>
           {[...Array(3)].map((_, index) => (

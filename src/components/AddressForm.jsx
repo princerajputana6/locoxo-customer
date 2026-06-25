@@ -155,7 +155,7 @@ const AddressForm = ({ initial, onSubmit, onCancel, submitLabel = 'Save Address'
               key={id}
               onClick={() => setForm((p) => ({ ...p, type: id }))}
               className={`flex items-center gap-2 px-4 py-2 border text-sm transition-colors ${
-                form.type === id ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
+                form.type === id ? 'bg-locoxo-orange text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
               }`}
             >
               <Icon className='w-4 h-4' strokeWidth={1.5} />
@@ -260,7 +260,7 @@ const AddressForm = ({ initial, onSubmit, onCancel, submitLabel = 'Save Address'
       </label>
 
       <div className='flex gap-3 pt-2'>
-        <button type='submit' className='bg-black text-white px-6 py-3 text-sm font-semibold tracking-wide uppercase hover:bg-gray-800 transition-colors'>
+        <button type='submit' className='bg-locoxo-orange text-white px-6 py-3 text-sm font-semibold tracking-wide uppercase hover:bg-locoxo-orange-dark transition-colors'>
           {submitLabel}
         </button>
         {onCancel && (

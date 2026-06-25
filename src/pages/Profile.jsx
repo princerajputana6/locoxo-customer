@@ -144,7 +144,7 @@ const Profile = () => {
             {activeTab === 'orders' && (
               <Panel title='My Orders'>
                 <p className='text-gray-500 mb-4'>Visit the Orders page to see all your orders.</p>
-                <button onClick={() => navigate('/orders')} className='bg-black text-white px-6 py-2.5 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800'>
+                <button onClick={() => navigate('/orders')} className='bg-locoxo-orange text-white px-6 py-2.5 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark'>
                   View All Orders
                 </button>
               </Panel>
@@ -156,7 +156,7 @@ const Profile = () => {
                   !showAddressForm && (
                     <button
                       onClick={() => setShowAddressForm(true)}
-                      className='inline-flex items-center gap-2 bg-black text-white px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800'
+                      className='inline-flex items-center gap-2 bg-locoxo-orange text-white px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark'
                     >
                       <Plus className='w-4 h-4' /> Add New
                     </button>
@@ -183,7 +183,7 @@ const Profile = () => {
                               <Icon className='w-4 h-4' strokeWidth={1.5} />
                               <span className='text-xs font-semibold uppercase tracking-widest'>{a.type || 'home'}</span>
                               {a.isDefault && (
-                                <span className='bg-black text-white text-[10px] uppercase tracking-widest px-2 py-0.5'>Default</span>
+                                <span className='bg-locoxo-orange text-white text-[10px] uppercase tracking-widest px-2 py-0.5'>Default</span>
                               )}
                             </div>
                             <button onClick={() => handleDeleteAddress(a._id)} className='text-gray-400 hover:text-red-600'>
@@ -228,7 +228,7 @@ const Profile = () => {
                       className='w-full px-4 py-3 border border-gray-300 focus:border-black outline-none text-sm'
                     />
                   </Field>
-                  <button className='bg-black text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800'>
+                  <button className='bg-locoxo-orange text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark'>
                     Save Changes
                   </button>
                 </form>
@@ -392,7 +392,7 @@ const ReturnsPanel = ({ backendUrl, token, userId }) => {
               />
             </Field>
 
-            <button className='bg-black text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 inline-flex items-center gap-2'>
+            <button className='bg-locoxo-orange text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark inline-flex items-center gap-2'>
               <Send className='w-4 h-4' /> Submit Return Request
             </button>
           </form>
@@ -405,7 +405,7 @@ const ReturnsPanel = ({ backendUrl, token, userId }) => {
     <Panel
       title='My Returns'
       action={
-        <button onClick={() => setView('new')} className='inline-flex items-center gap-2 bg-black text-white px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800'>
+        <button onClick={() => setView('new')} className='inline-flex items-center gap-2 bg-locoxo-orange text-white px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark'>
           <Plus className='w-4 h-4' /> Request Return
         </button>
       }
@@ -454,7 +454,7 @@ const OverviewPanel = ({ userData, setActiveTab, navigate }) => (
       {userData.phone && <p className='text-xs'>{userData.phone}</p>}
       <button
         onClick={() => setActiveTab('profile')}
-        className='mt-6 bg-black text-white px-8 py-3 font-semibold tracking-wide uppercase hover:bg-gray-800 transition-colors w-full max-w-md'
+        className='mt-6 bg-locoxo-orange text-white px-8 py-3 font-semibold tracking-wide uppercase hover:bg-locoxo-orange-dark transition-colors w-full max-w-md'
       >
         Edit Profile
       </button>
@@ -592,7 +592,7 @@ const SupportPanel = ({ backendUrl, token }) => {
               className='w-full px-4 py-3 border border-gray-300 focus:border-black outline-none text-sm resize-none'
             />
           </Field>
-          <button className='bg-black text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 inline-flex items-center gap-2'>
+          <button className='bg-locoxo-orange text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark inline-flex items-center gap-2'>
             <Send className='w-4 h-4' /> Submit Ticket
           </button>
         </form>
@@ -619,7 +619,7 @@ const SupportPanel = ({ backendUrl, token }) => {
         <div className='space-y-4 mb-6 max-h-[480px] overflow-y-auto pr-2'>
           {selected.messages.map((m) => (
             <div key={m._id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] p-4 border ${m.sender === 'user' ? 'bg-black text-white border-black' : 'bg-gray-50 border-gray-200'}`}>
+              <div className={`max-w-[80%] p-4 border ${m.sender === 'user' ? 'bg-locoxo-orange text-white border-black' : 'bg-gray-50 border-gray-200'}`}>
                 <p className='text-[10px] uppercase tracking-widest opacity-70 mb-1'>{m.sender === 'admin' ? 'Support' : 'You'}</p>
                 <p className='text-sm whitespace-pre-wrap'>{m.body}</p>
                 <p className='text-[10px] mt-2 opacity-60'>{new Date(m.createdAt).toLocaleString()}</p>
@@ -637,7 +637,7 @@ const SupportPanel = ({ backendUrl, token }) => {
               placeholder='Type your reply…'
               className='flex-1 px-4 py-3 border border-gray-300 focus:border-black outline-none text-sm resize-none'
             />
-            <button className='bg-black text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 inline-flex items-center gap-2 self-start'>
+            <button className='bg-locoxo-orange text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark inline-flex items-center gap-2 self-start'>
               <Send className='w-4 h-4' /> Send
             </button>
           </form>
@@ -650,7 +650,7 @@ const SupportPanel = ({ backendUrl, token }) => {
     <Panel
       title='Help & Support'
       action={
-        <button onClick={() => setView('new')} className='inline-flex items-center gap-2 bg-black text-white px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-gray-800'>
+        <button onClick={() => setView('new')} className='inline-flex items-center gap-2 bg-locoxo-orange text-white px-4 py-2 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark'>
           <Plus className='w-4 h-4' /> New Ticket
         </button>
       }

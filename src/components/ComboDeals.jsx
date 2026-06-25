@@ -50,7 +50,7 @@ const ComboDeals = () => {
               onClick={() => setActiveId(c.id)}
               className={`px-5 sm:px-8 py-3 text-xs sm:text-sm font-semibold tracking-wide uppercase transition-colors ${
                 activeId === c.id
-                  ? 'bg-black text-white'
+                  ? 'bg-locoxo-orange text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
@@ -96,7 +96,7 @@ const ComboDeals = () => {
             </div>
             <button
               onClick={() => navigate('/collection')}
-              className='w-full md:w-auto bg-black text-white px-10 py-4 text-sm font-semibold tracking-wide uppercase hover:bg-gray-800 transition-colors'
+              className='w-full md:w-auto bg-locoxo-orange text-white px-10 py-4 text-sm font-semibold tracking-wide uppercase hover:bg-locoxo-orange-dark transition-colors'
             >
               Build This Combo
             </button>

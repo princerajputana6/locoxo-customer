@@ -46,7 +46,7 @@ const VideoIntro = () => {
           {/* Left Side - Text Content with Animation */}
           <div className='order-2 lg:order-1 space-y-6'>
             <div className='inline-block'>
-              <span className='bg-black text-white text-xs font-bold px-3 py-1 rounded-full'>
+              <span className='bg-locoxo-orange text-white text-xs font-bold px-3 py-1 rounded-full'>
                 ABOUT LOCOXO
               </span>
             </div>
@@ -88,7 +88,7 @@ const VideoIntro = () => {
             <div className='flex flex-wrap gap-4 pt-6'>
               <button
                 onClick={() => window.location.href = '/collection'}
-                className='bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition-all duration-300 hover:shadow-lg'
+                className='bg-locoxo-orange text-white px-8 py-3 rounded-full font-semibold hover:bg-locoxo-orange-dark transition-all duration-300 hover:shadow-lg'
               >
                 Shop Now
               </button>

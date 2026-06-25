@@ -43,7 +43,7 @@ const Cart = () => {
           </svg>
           <h3 className='text-2xl font-semibold mb-2'>Your cart is empty</h3>
           <p className='text-gray-600 mb-6'>Add some products to get started</p>
-          <button onClick={() => navigate('/collection')} className='bg-black text-white px-8 py-3 font-semibold hover:bg-gray-800 transition-colors'>
+          <button onClick={() => navigate('/collection')} className='bg-locoxo-orange text-white px-8 py-3 font-semibold hover:bg-locoxo-orange-dark transition-colors'>
             CONTINUE SHOPPING
           </button>
         </div>
@@ -111,7 +111,7 @@ const Cart = () => {
               <CartTotal />
               <button 
                 onClick={() => navigate('/place-order')} 
-                className='w-full bg-black text-white py-4 font-semibold tracking-wide hover:bg-gray-800 transition-colors mt-6'
+                className='w-full bg-locoxo-orange text-white py-4 font-semibold tracking-wide hover:bg-locoxo-orange-dark transition-colors mt-6'
               >
                 PROCEED TO CHECKOUT
               </button>

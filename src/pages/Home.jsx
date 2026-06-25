@@ -9,6 +9,9 @@ import VideoIntro from '../components/VideoIntro'
 import ComboDeals from '../components/ComboDeals'
 import OurPolicy from '../components/OurPolicy'
 import BannerDisplay from '../components/BannerDisplay'
+import AIRecommendations from '../components/AIRecommendations'
+import TopCategory from '../components/TopCategory'
+import AnimeSuperHero from '../components/AnimeSuperHero'
 import axios from 'axios'
 
 const Home = () => {
@@ -63,6 +66,10 @@ const Home = () => {
       {getBannersForPlacement('after-best-seller').map((banner, index) => (
         <BannerDisplay key={`after-best-seller-${index}`} banner={banner} />
       ))}
+
+      <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
+        <AIRecommendations />
+      </div>
       
       <NewArrivals />
       {getBannersForPlacement('after-new-arrivals').map((banner, index) => (
@@ -78,6 +85,9 @@ const Home = () => {
       {getBannersForPlacement('after-combo-deals').map((banner, index) => (
         <BannerDisplay key={`after-combo-deals-${index}`} banner={banner} />
       ))}
+
+      <TopCategory />
+      <AnimeSuperHero />
       
       <OurPolicy />
       {getBannersForPlacement('after-stats').map((banner, index) => (

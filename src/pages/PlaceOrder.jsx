@@ -136,6 +136,13 @@ const PlaceOrder = () => {
                     localStorage.removeItem('referralCode')
                     navigate('/orders')
                 } else toast.error(data.message)
+            } else if (method === 'cashfree') {
+                const { data } = await axios.post(backendUrl + '/api/order/cashfree', orderData, { headers: { token } })
+                if (data.success) {
+                    if (!window.Cashfree) { toast.error('Cashfree SDK failed to load'); return }
+                    const cashfree = window.Cashfree({ mode: data.mode })
+                    cashfree.checkout({ paymentSessionId: data.paymentSessionId, redirectTarget: '_self' })
+                } else toast.error(data.message)
             } else {
                 const { data } = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
                 if (data.success) initPay(data.order)
@@ -152,7 +159,7 @@ const PlaceOrder = () => {
             <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-20 text-center'>
                 <h1 className='text-2xl font-bold mb-4'>Sign in to continue</h1>
                 <p className='text-gray-600 mb-6'>You need an account to place an order.</p>
-                <button onClick={() => navigate('/login')} className='bg-black text-white px-8 py-3 font-semibold uppercase tracking-wide hover:bg-gray-800'>
+                <button onClick={() => navigate('/login')} className='bg-locoxo-orange text-white px-8 py-3 font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark'>
                     Go to Login
                 </button>
             </div>
@@ -246,7 +253,7 @@ const PlaceOrder = () => {
                                             className={`text-left border p-5 transition-colors relative ${active ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'}`}
                                         >
                                             {active && (
-                                                <div className='absolute top-3 right-3 w-5 h-5 rounded-full bg-black text-white flex items-center justify-center'>
+                                                <div className='absolute top-3 right-3 w-5 h-5 rounded-full bg-locoxo-orange text-white flex items-center justify-center'>
                                                     <Check className='w-3 h-3' strokeWidth={3} />
                                                 </div>
                                             )}
@@ -287,22 +294,26 @@ const PlaceOrder = () => {
                             )}
 
                             <div className='space-y-3'>
-                                {['cod', 'razorpay'].map((m) => (
+                                {[
+                                    { id: 'cod', label: 'CASH ON DELIVERY' },
+                                    { id: 'razorpay', label: 'PAY ONLINE — RAZORPAY' },
+                                    { id: 'cashfree', label: 'PAY ONLINE — CASHFREE' },
+                                ].map(({ id: m, label }) => (
                                     <label
                                         key={m}
                                         onClick={() => setMethod(m)}
-                                        className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${method === m ? 'border-black bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
+                                        className={`flex items-center gap-3 border-2 p-4 cursor-pointer transition-colors ${method === m ? 'border-locoxo-blue bg-locoxo-bg' : 'border-gray-300 hover:border-gray-400'}`}
                                     >
-                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === m ? 'border-black' : 'border-gray-300'}`}>
-                                            {method === m && <div className='w-3 h-3 rounded-full bg-black'></div>}
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === m ? 'border-locoxo-blue' : 'border-gray-300'}`}>
+                                            {method === m && <div className='w-3 h-3 rounded-full bg-locoxo-blue'></div>}
                                         </div>
-                                        <span className='text-sm font-medium'>{m === 'cod' ? 'CASH ON DELIVERY' : 'PAY ONLINE'}</span>
+                                        <span className='text-sm font-medium'>{label}</span>
                                     </label>
                                 ))}
                             </div>
                         </div>
 
-                        <button type='submit' disabled={!selectedAddress} className='w-full bg-black text-white py-4 font-semibold tracking-wide hover:bg-gray-800 transition-colors mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed'>
+                        <button type='submit' disabled={!selectedAddress} className='w-full bg-locoxo-orange text-white py-4 font-semibold tracking-wide hover:bg-locoxo-orange-dark transition-colors mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed'>
                             PLACE ORDER
                         </button>
                     </div>

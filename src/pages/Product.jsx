@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
+import AISuggestions from '../components/AISuggestions';
 import ProductItem from '../components/ProductItem';
 import { toast } from 'react-toastify';
 
@@ -259,7 +260,7 @@ const Product = () => {
                       onClick={() => setSize(item)} 
                       className={`min-w-[50px] px-4 py-2 border rounded-md font-medium text-sm transition-all ${
                         item === size 
-                          ? 'border-black bg-black text-white' 
+                          ? 'border-black bg-locoxo-orange text-white' 
                           : 'border-gray-300 hover:border-black'
                       }`} 
                       key={index}
@@ -582,6 +583,9 @@ const Product = () => {
           </button>
         </div>
       </div>
+
+      {/* AI-powered cross-sell */}
+      <AISuggestions productId={productData._id} />
 
       {/* You May Also Like */}
       <RelatedProducts category={typeof productData.category === 'object' ? productData.category?.name : productData.category} subCategory={productData.subCategory} />

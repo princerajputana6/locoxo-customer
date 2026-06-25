@@ -85,7 +85,7 @@ const YourFavorites = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
                   activeTab === tab.id
-                    ? 'bg-black text-white shadow-lg'
+                    ? 'bg-locoxo-orange text-white shadow-lg'
                     : 'text-gray-600 hover:text-black'
                 }`}
               >
@@ -130,7 +130,7 @@ const YourFavorites = () => {
               <p className='text-gray-500 text-lg'>No products found in this category</p>
               <button
                 onClick={() => navigate('/collection')}
-                className='mt-6 bg-black text-white px-6 py-2 rounded-full font-semibold hover:bg-gray-800 transition-colors'
+                className='mt-6 bg-locoxo-orange text-white px-6 py-2 rounded-full font-semibold hover:bg-locoxo-orange-dark transition-colors'
               >
                 Browse All Products
               </button>

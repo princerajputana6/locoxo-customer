@@ -96,7 +96,7 @@ const About = () => {
       </div>
 
       {/* Vision */}
-      <div className='bg-black text-white p-12 mb-16 text-center'>
+      <div className='bg-locoxo-orange text-white p-12 mb-16 text-center'>
         <h2 className='text-2xl font-bold tracking-widest mb-6'>OUR VISION</h2>
         <p className='text-gray-300 leading-relaxed max-w-3xl mx-auto mb-4'>
           As we grow, our ambition is to establish Locoxo as a globally respected name in streetwear — a symbol of modern luxury, authenticity, and cultural relevance. At the same time, we remain deeply rooted in our commitment to supporting Indian craftsmanship and contributing to meaningful employment.

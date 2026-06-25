@@ -321,6 +321,8 @@ const Navbar = () => {
                     <div className='flex flex-col gap-1 w-40 py-2 bg-white border border-gray-200 shadow-lg rounded-lg'>
                         <p onClick={()=>navigate('/profile')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>My Profile</p>
                         <p onClick={()=>navigate('/orders')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Orders</p>
+                        <p onClick={()=>navigate('/membership')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors text-locoxo-orange-dark font-semibold'>👑 Premium</p>
+                        <p onClick={()=>navigate('/referral')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Refer & Earn</p>
                         <p onClick={logout} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Logout</p>
                     </div>
                 </div>}
@@ -329,7 +331,7 @@ const Navbar = () => {
                 <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
                 </svg>
-                {getCartCount() > 0 && <span className='absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-center leading-4 sm:leading-5 bg-black text-white text-[10px] sm:text-xs font-bold rounded-full'>{getCartCount()}</span>}
+                {getCartCount() > 0 && <span className='absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-center leading-4 sm:leading-5 bg-locoxo-orange text-white text-[10px] sm:text-xs font-bold rounded-full'>{getCartCount()}</span>}
             </Link> 
       </div>
       </div>
@@ -430,7 +432,7 @@ const Navbar = () => {
               <button
                 onClick={useCurrentLocation}
                 disabled={loadingLocation}
-                className='w-full mb-4 p-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                className='w-full mb-4 p-3 bg-locoxo-orange text-white rounded-lg hover:bg-locoxo-orange-dark transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed'
               >
                 {loadingLocation ? (
                   <>

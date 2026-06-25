@@ -102,7 +102,7 @@ const Orders = () => {
                                 <span className='text-sm font-medium'>{item.status}</span>
                             </div>
                             <div className='flex flex-col gap-2 w-full md:w-auto'>
-                              <button onClick={()=>navigate('/track-order/' + item.orderId)} className='bg-black text-white px-6 py-2 text-sm font-semibold hover:bg-gray-800 transition-colors'>
+                              <button onClick={()=>navigate('/track-order/' + item.orderId)} className='bg-locoxo-orange text-white px-6 py-2 text-sm font-semibold hover:bg-locoxo-orange-dark transition-colors'>
                                 TRACK ORDER
                               </button>
                               {item.orderNumber && (

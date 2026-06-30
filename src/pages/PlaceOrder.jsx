@@ -54,25 +54,6 @@ const PlaceOrder = () => {
         } catch { toast.error('Failed to save address') }
     }
 
-    const initPay = (order) => {
-        const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-            amount: order.amount,
-            currency: order.currency,
-            name: 'Order Payment',
-            description: 'Order Payment',
-            order_id: order.id,
-            receipt: order.receipt,
-            handler: async (response) => {
-                try {
-                    const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay', response, { headers: { token } })
-                    if (data.success) { navigate('/orders'); setCartItems({}) }
-                } catch (error) { toast.error(error.message) }
-            }
-        }
-        new window.Razorpay(options).open()
-    }
-
     const onSubmitHandler = async (event) => {
         event.preventDefault()
         if (!token) {
@@ -136,17 +117,13 @@ const PlaceOrder = () => {
                     localStorage.removeItem('referralCode')
                     navigate('/orders')
                 } else toast.error(data.message)
-            } else if (method === 'cashfree') {
+            } else {
                 const { data } = await axios.post(backendUrl + '/api/order/cashfree', orderData, { headers: { token } })
                 if (data.success) {
                     if (!window.Cashfree) { toast.error('Cashfree SDK failed to load'); return }
                     const cashfree = window.Cashfree({ mode: data.mode })
                     cashfree.checkout({ paymentSessionId: data.paymentSessionId, redirectTarget: '_self' })
                 } else toast.error(data.message)
-            } else {
-                const { data } = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
-                if (data.success) initPay(data.order)
-                else toast.error(data.message)
             }
         } catch (error) {
             console.log(error)
@@ -296,7 +273,6 @@ const PlaceOrder = () => {
                             <div className='space-y-3'>
                                 {[
                                     { id: 'cod', label: 'CASH ON DELIVERY' },
-                                    { id: 'razorpay', label: 'PAY ONLINE — RAZORPAY' },
                                     { id: 'cashfree', label: 'PAY ONLINE — CASHFREE' },
                                 ].map(({ id: m, label }) => (
                                     <label

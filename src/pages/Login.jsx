@@ -44,10 +44,23 @@ const Login = () => {
     localStorage.removeItem('signupReferralCode')
   }
 
+  // Validation helpers
+  const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)
+  const isValidPhone = (p) => {
+    const digits = String(p).replace(/[\s\-()]/g, '').replace(/^\+?91/, '')
+    return /^[6-9]\d{9}$/.test(digits) // Indian mobile: 10 digits starting 6-9
+  }
+
   const onSubmitHandler = async (event) => {
       event.preventDefault();
       try {
         if (currentState === 'Sign Up') {
+          // Client-side validation
+          if (!name.trim()) return toast.error('Please enter your name')
+          if (!isValidEmail(email)) return toast.error('Please enter a valid email address')
+          if (!isValidPhone(phone)) return toast.error('Enter a valid 10-digit mobile number')
+          if (password.length < 8) return toast.error('Password must be at least 8 characters')
+
           const response = await axios.post(backendUrl + '/api/user/register',{name,email,password,phone,dob,referralCode: referral || undefined})
           if (response.data.success) finishLogin(response.data.token)
           else toast.error(response.data.message)

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,21 +8,29 @@ a.active hr{
     display: block;
 }
 
+/* Montserrat across the whole website */
 *{
-    font-family: 'Inter', sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: 'Montserrat', sans-serif;
 }
 
-  ::-webkit-scrollbar{
+body{
+    color: #333333;
+    background-color: #ffffff;
+}
+
+/* Display headings in ExtraBold */
+h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+}
+
+::-webkit-scrollbar{
     display: none;
-  }
-  
-  @media (max-width:640px) {
+}
+
+@media (max-width:640px) {
     a.active{
-        background-color: black;
-        color: white;
+        background-color: #062B52;
+        color: #ffffff;
     }
-  }
+}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import Title from '../components/Title'
 import { assets } from '../assets/assets'
-import NewsletterBox from '../components/NewsletterBox'
 
 const faqs = [
   { q: 'How do I place an order?', a: 'Simply browse our collection, select your preferred product, choose the correct size and quantity, and add it to your cart. After that, proceed to checkout and complete your payment.' },
@@ -99,8 +98,6 @@ const Contact = () => {
           ))}
         </div>
       </div>
-
-      <NewsletterBox />
     </div>
   )
 }

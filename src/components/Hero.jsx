@@ -59,14 +59,14 @@ const Hero = () => {
   const go = (category) => navigate(`/collection?category=${category}`)
 
   return (
-    <div className='relative w-full h-[90vh] bg-locoxo-header overflow-hidden'>
+    <div className='relative w-full h-[90vh] bg-locoxo-blue overflow-hidden'>
       <div className='flex transition-transform duration-700 ease-in-out h-full' style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
         {slides.map((slide, slideIndex) => (
           <div key={slideIndex} className='min-w-full h-full flex flex-col md:flex-row'>
             {slide.map((category, catIndex) => (
               <div key={catIndex} onClick={() => go(category.category)}
                 className='flex-1 relative overflow-hidden cursor-pointer group w-full h-1/3 md:h-full md:w-auto'>
-                <div className='absolute inset-0 bg-locoxo-header'>
+                <div className='absolute inset-0 bg-locoxo-blue'>
                   <img
                     src={category.image}
                     alt={category.title}

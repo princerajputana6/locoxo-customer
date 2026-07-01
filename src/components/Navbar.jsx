@@ -254,13 +254,13 @@ const Navbar = () => {
     };
 
   return (
-    <div className='sticky top-0 z-50 bg-white border-b border-gray-200'>
+    <div className='sticky top-0 z-50 bg-locoxo-header border-b border-locoxo-secondary/50'>
       {/* Top Header */}
-      <div className='flex items-center justify-between px-4 sm:px-8 lg:px-16 py-3 max-w-[1920px] mx-auto border-b border-gray-100'>
+      <div className='flex items-center justify-between px-4 sm:px-8 lg:px-16 py-3 max-w-[1920px] mx-auto border-b border-white/10 text-white'>
       
       {/* Left side - Hamburger menu + Location */}
       <div className='flex items-center gap-4'>
-        <button onClick={()=>setVisible(true)} className='p-2 hover:bg-gray-100 rounded transition-colors'>
+        <button onClick={()=>setVisible(true)} className='p-2 hover:bg-white/10 rounded transition-colors'>
           <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
           </svg>
@@ -284,41 +284,41 @@ const Navbar = () => {
 
       {/* Center - Logo */}
       <Link to='/' className='flex items-center'>
-        <img src={assets.logo} alt='LOCOXO' className='h-6 sm:h-8 w-auto object-contain' />
+        <img src={assets.logo_white} alt='LOCOXO' className='h-6 sm:h-8 w-auto object-contain' />
       </Link>
 
       {/* Right side - Search + Icons */}
       <div className='flex items-center gap-2 sm:gap-4'>
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className='hidden md:flex items-center bg-gray-100 rounded-md px-3 py-1.5 w-48 lg:w-64'>
-              <svg className='w-4 h-4 text-gray-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <form onSubmit={handleSearch} className='hidden md:flex items-center bg-white/10 rounded-md px-3 py-1.5 w-48 lg:w-64'>
+              <svg className='w-4 h-4 text-white/70' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
               </svg>
-              <input 
+              <input
                 type='text'
                 placeholder='Search "WHITE SHIRT"'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className='bg-transparent outline-none text-sm ml-2 w-full placeholder-gray-500'
+                className='bg-transparent outline-none text-sm ml-2 w-full text-white placeholder-white/60'
               />
             </form>
 
             {/* Mobile Search Icon */}
-            <button onClick={()=> { setShowSearch(true); navigate('/collection') }} className='md:hidden p-1.5 hover:bg-gray-100 rounded transition-colors'>
+            <button onClick={()=> { setShowSearch(true); navigate('/collection') }} className='md:hidden p-1.5 hover:bg-white/10 rounded transition-colors'>
               <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
               </svg>
             </button>
             
             <div className='group relative'>
-                <button onClick={()=> token ? null : navigate('/login') } className='p-1.5 hover:bg-gray-100 rounded transition-colors'>
+                <button onClick={()=> token ? null : navigate('/login') } className='p-1.5 hover:bg-white/10 rounded transition-colors'>
                   <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' />
                   </svg>
                 </button>
                 {token && 
                 <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
-                    <div className='flex flex-col gap-1 w-40 py-2 bg-white border border-gray-200 shadow-lg rounded-lg'>
+                    <div className='flex flex-col gap-1 w-40 py-2 bg-white border border-gray-200 shadow-lg rounded-lg text-locoxo-text'>
                         <p onClick={()=>navigate('/profile')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>My Profile</p>
                         <p onClick={()=>navigate('/orders')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Orders</p>
                         <p onClick={()=>navigate('/membership')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors text-locoxo-orange-dark font-semibold'>👑 Premium</p>
@@ -327,7 +327,7 @@ const Navbar = () => {
                     </div>
                 </div>}
             </div> 
-            <Link to='/cart' className='relative p-1.5 hover:bg-gray-100 rounded transition-colors'>
+            <Link to='/cart' className='relative p-1.5 hover:bg-white/10 rounded transition-colors'>
                 <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
                 </svg>
@@ -337,17 +337,17 @@ const Navbar = () => {
       </div>
 
       {/* Category Navigation Bar */}
-      <div className='hidden lg:block bg-white'>
+      <div className='hidden lg:block bg-locoxo-secondary text-white'>
         <div className='max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-16'>
           <div className='flex items-center justify-center gap-8 py-3 overflow-x-auto scrollbar-hide'>
-            <NavLink to='/collection' className='text-sm font-medium hover:text-gray-600 transition-colors whitespace-nowrap'>
+            <NavLink to='/collection' className='text-sm font-semibold text-white hover:text-locoxo-orange transition-colors whitespace-nowrap'>
               Discover
             </NavLink>
             {categories.slice(0, 8).map((category) => (
-              <NavLink 
+              <NavLink
                 key={category._id}
                 to={`/collection?category=${category.name}`}
-                className='text-sm font-medium hover:text-gray-600 transition-colors whitespace-nowrap'
+                className='text-sm font-semibold text-white hover:text-locoxo-orange transition-colors whitespace-nowrap'
               >
                 {category.name}
               </NavLink>
@@ -357,9 +357,9 @@ const Navbar = () => {
       </div>
 
         {/* Sidebar menu with categories */}
-        <div className={`fixed top-0 left-0 bottom-0 bg-white shadow-2xl transition-all duration-300 z-50 ${visible ? 'w-80' : 'w-0'} overflow-hidden`}>
+        <div className={`fixed top-0 left-0 bottom-0 bg-locoxo-header text-white shadow-2xl transition-all duration-300 z-50 ${visible ? 'w-80' : 'w-0'} overflow-hidden`}>
                 <div className='flex flex-col h-full'>
-                    <div onClick={()=>setVisible(false)} className='flex items-center justify-between p-6 border-b'>
+                    <div onClick={()=>setVisible(false)} className='flex items-center justify-between p-6 border-b border-white/10'>
                         <span className='font-bold text-lg tracking-wide'>MENU</span>
                         <button className='p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer'>
                           <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -368,32 +368,32 @@ const Navbar = () => {
                         </button>
                     </div>
                     <div className='flex-1 overflow-y-auto'>
-                      <NavLink onClick={()=>setVisible(false)} className='block py-4 px-6 border-b hover:bg-gray-50 font-medium transition-colors' to='/'>HOME</NavLink>
-                      <NavLink onClick={()=>setVisible(false)} className='block py-4 px-6 border-b hover:bg-gray-50 font-medium transition-colors' to='/collection'>SHOP ALL</NavLink>
+                      <NavLink onClick={()=>setVisible(false)} className='block py-4 px-6 border-b hover:bg-white/10 font-medium transition-colors' to='/'>HOME</NavLink>
+                      <NavLink onClick={()=>setVisible(false)} className='block py-4 px-6 border-b hover:bg-white/10 font-medium transition-colors' to='/collection'>SHOP ALL</NavLink>
                       
                       {categories.length > 0 && (
                         <>
-                          <div className='py-4 px-6 border-b bg-gray-50'>
-                            <span className='text-xs font-bold text-gray-500 uppercase tracking-wider'>Categories</span>
+                          <div className='py-4 px-6 border-b border-white/10 bg-white/5'>
+                            <span className='text-xs font-bold text-white/60 uppercase tracking-wider'>Categories</span>
                           </div>
                           
                           {categories.filter(cat => !cat.parentCategory).map((category) => (
                             <div key={category._id}>
                               <NavLink 
                                 onClick={()=>setVisible(false)} 
-                                className='flex items-center justify-between py-4 px-6 border-b hover:bg-gray-50 font-medium transition-colors' 
+                                className='flex items-center justify-between py-4 px-6 border-b hover:bg-white/10 font-medium transition-colors' 
                                 to={`/collection?category=${category.name}`}
                               >
                                 {category.name}
                                 <svg className='w-4 h-4 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' /></svg>
                               </NavLink>
                               {categories.filter(sub => sub.parentCategory === category._id).length > 0 && (
-                                <div className='bg-gray-50'>
+                                <div className='bg-white/5'>
                                   {categories.filter(sub => sub.parentCategory === category._id).map((subCat) => (
                                     <NavLink
                                       key={subCat._id}
                                       onClick={()=>setVisible(false)}
-                                      className='flex items-center justify-between py-3 px-6 pl-12 border-b hover:bg-gray-100 text-sm transition-colors'
+                                      className='flex items-center justify-between py-3 px-6 pl-12 border-b border-white/10 hover:bg-white/10 text-sm transition-colors'
                                       to={`/collection?category=${subCat.name}`}
                                     >
                                       {subCat.name}

@@ -1,7 +1,6 @@
 import React from 'react'
 import Title from '../components/Title'
 import { assets } from '../assets/assets'
-import NewsletterBox from '../components/NewsletterBox'
 
 const About = () => {
   return (
@@ -22,27 +21,16 @@ const About = () => {
             <p className='text-gray-600 leading-relaxed'>
               What brought them together was a single idea — to redefine streetwear by making high-end, design-driven fashion accessible without compromising on quality or character.
             </p>
-            <div className='grid grid-cols-2 gap-6 mt-2'>
-              <div className='bg-gray-50 p-5 border border-gray-200'>
-                <h4 className='font-bold text-sm tracking-widest mb-3'>LOCOXO</h4>
+            <div className='mt-2'>
+              <div className='bg-locoxo-bg p-6 border border-gray-200 rounded-lg max-w-sm'>
+                <h4 className='font-bold text-sm tracking-widest mb-3 text-locoxo-header'>WHAT LOCOXO STANDS FOR</h4>
                 <ul className='text-gray-600 text-sm space-y-1'>
-                  <li><span className='font-semibold'>L</span> – Limitless</li>
-                  <li><span className='font-semibold'>O</span> – Original</li>
-                  <li><span className='font-semibold'>C</span> – Creative</li>
-                  <li><span className='font-semibold'>O</span> – Outstanding</li>
-                  <li><span className='font-semibold'>X</span> – X-factor</li>
-                  <li><span className='font-semibold'>O</span> – Optimistic</li>
-                </ul>
-              </div>
-              <div className='bg-gray-50 p-5 border border-gray-200'>
-                <h4 className='font-bold text-sm tracking-widest mb-3'>LOCOXO</h4>
-                <ul className='text-gray-600 text-sm space-y-1'>
-                  <li><span className='font-semibold'>L</span> – Live</li>
-                  <li><span className='font-semibold'>O</span> – Original</li>
-                  <li><span className='font-semibold'>C</span> – Confident</li>
-                  <li><span className='font-semibold'>O</span> – Outspoken</li>
-                  <li><span className='font-semibold'>X</span> – X-factor</li>
-                  <li><span className='font-semibold'>O</span> – Own it</li>
+                  <li><span className='font-semibold text-locoxo-blue'>L</span> – Live</li>
+                  <li><span className='font-semibold text-locoxo-blue'>O</span> – Original</li>
+                  <li><span className='font-semibold text-locoxo-blue'>C</span> – Confident</li>
+                  <li><span className='font-semibold text-locoxo-blue'>O</span> – Outspoken</li>
+                  <li><span className='font-semibold text-locoxo-blue'>X</span> – X-factor</li>
+                  <li><span className='font-semibold text-locoxo-blue'>O</span> – Own it</li>
                 </ul>
               </div>
             </div>
@@ -108,8 +96,6 @@ const About = () => {
           Wear your attitude. Show your strength. You are Locoxo.
         </p>
       </div>
-
-      <NewsletterBox />
     </div>
   )
 }

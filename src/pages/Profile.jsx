@@ -4,7 +4,8 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import {
   User, Package, MapPin, HelpCircle, LogOut,
-  Plus, Trash2, Home, Briefcase, Send, X, ArrowRight, RotateCcw
+  Plus, Trash2, Home, Briefcase, Send, X, ArrowRight, RotateCcw,
+  Gift, Crown
 } from 'lucide-react'
 import AddressForm from '../components/AddressForm'
 
@@ -445,18 +446,36 @@ const ReturnsPanel = ({ backendUrl, token, userId }) => {
 
 const OverviewPanel = ({ userData, setActiveTab, navigate }) => (
   <div className='space-y-6'>
-    <div className='bg-gradient-to-r from-yellow-400 to-yellow-500 p-8 text-center'>
-      <div className='w-20 h-20 bg-yellow-300 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4'>
+    <div className='bg-gradient-to-r from-locoxo-blue to-locoxo-secondary p-8 text-center text-white rounded-lg'>
+      <div className='w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4'>
         {userData.name?.charAt(0)?.toUpperCase() || 'U'}
       </div>
       <h2 className='text-2xl font-bold mb-1'>{userData.name || 'User'}</h2>
-      <p className='text-sm mb-1'>{userData.email}</p>
-      {userData.phone && <p className='text-xs'>{userData.phone}</p>}
+      <p className='text-sm mb-1 text-white/90'>{userData.email}</p>
+      {userData.phone && <p className='text-xs text-white/80'>{userData.phone}</p>}
       <button
         onClick={() => setActiveTab('profile')}
         className='mt-6 bg-locoxo-orange text-white px-8 py-3 font-semibold tracking-wide uppercase hover:bg-locoxo-orange-dark transition-colors w-full max-w-md'
       >
         Edit Profile
+      </button>
+    </div>
+
+    {/* Highlight cards: Refer & Earn + Premium */}
+    <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+      <button onClick={() => navigate('/referral')} className='text-left p-6 rounded-lg bg-locoxo-header text-white hover:shadow-lg transition-shadow flex items-start gap-4'>
+        <span className='w-11 h-11 rounded-full bg-locoxo-orange/20 flex items-center justify-center shrink-0'><Gift className='w-5 h-5 text-locoxo-orange' /></span>
+        <div>
+          <h3 className='font-bold mb-1'>Refer &amp; Earn</h3>
+          <p className='text-xs text-white/70'>Invite friends — you both earn wallet credit on their first order.</p>
+        </div>
+      </button>
+      <button onClick={() => navigate('/membership')} className='text-left p-6 rounded-lg bg-gradient-to-r from-locoxo-orange to-locoxo-orange-dark text-white hover:shadow-lg transition-shadow flex items-start gap-4'>
+        <span className='w-11 h-11 rounded-full bg-white/20 flex items-center justify-center shrink-0'><Crown className='w-5 h-5 text-white' /></span>
+        <div>
+          <h3 className='font-bold mb-1'>LOCOXO Premium</h3>
+          <p className='text-xs text-white/85'>Free shipping, member-only discounts &amp; early access.</p>
+        </div>
       </button>
     </div>
 
@@ -470,9 +489,9 @@ const OverviewPanel = ({ userData, setActiveTab, navigate }) => (
         <button
           key={label}
           onClick={onClick}
-          className='bg-white border border-gray-200 p-6 text-left hover:border-black transition-colors'
+          className='bg-white border border-gray-200 p-6 text-left hover:border-locoxo-blue transition-colors rounded-lg'
         >
-          <Icon className='w-6 h-6 mb-3' strokeWidth={1.5} />
+          <Icon className='w-6 h-6 mb-3 text-locoxo-blue' strokeWidth={1.5} />
           <h3 className='font-semibold mb-1'>{label}</h3>
           <p className='text-xs text-gray-500'>{desc}</p>
         </button>

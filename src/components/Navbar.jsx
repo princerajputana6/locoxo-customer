@@ -4,6 +4,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { toast } from 'react-toastify';
 import useGoogleMaps from '../hooks/useGoogleMaps';
+import { fetchCitySuggestions, getPlaceDetails, reverseGeocode, getCurrentPosition } from '../utils/locationService';
 
 const Navbar = () => {
 
@@ -15,8 +16,8 @@ const Navbar = () => {
     const [predictions, setPredictions] = useState([]);
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const autocompleteService = useRef(null);
-    const geocoder = useRef(null);
+    const searchDebounce = useRef(null);
+    const autoPickAttempted = useRef(false);
 
     const {setShowSearch, getCartCount, navigate, token, setToken, setCartItems, categories} = useContext(ShopContext);
     const { isLoaded: googleMapsLoaded, loadError } = useGoogleMaps();
@@ -49,13 +50,63 @@ const Navbar = () => {
         '311001', '311002', '311003', '311004', '311005',
     ];
 
-    useEffect(() => {
-        // Initialize Google Places API when loaded
-        if (googleMapsLoaded && window.google && window.google.maps && window.google.maps.places) {
-            autocompleteService.current = new window.google.maps.places.AutocompleteService();
-            geocoder.current = new window.google.maps.Geocoder();
-            console.log('✅ Google Maps services initialized');
+    // Serviceable states (delivery currently limited to Rajasthan). Used as a
+    // fallback when a city-level result has no postal_code.
+    const serviceableStates = ['Rajasthan'];
+
+    const isServiceable = (pincode, state) => {
+        if (pincode) {
+            return serviceablePincodes.some(code => pincode.startsWith(code.substring(0, 3)));
         }
+        return serviceableStates.includes(state);
+    };
+
+    // Persist the chosen location so we don't re-prompt on every visit.
+    const applyLocation = (city, pincode) => {
+        setSelectedLocation(city);
+        if (pincode) setSelectedPincode(pincode);
+        try {
+            localStorage.setItem('locoxo_location', JSON.stringify({ city, pincode: pincode || '' }));
+        } catch { /* storage unavailable */ }
+    };
+
+    // Restore a previously saved location on mount.
+    useEffect(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('locoxo_location') || 'null');
+            if (saved && saved.city) {
+                setSelectedLocation(saved.city);
+                setSelectedPincode(saved.pincode || '');
+                autoPickAttempted.current = true; // already have a location, skip auto-pick
+            }
+        } catch { /* ignore */ }
+    }, []);
+
+    // Auto-pick the user's location on landing (once Maps is ready and nothing saved).
+    useEffect(() => {
+        if (!googleMapsLoaded || autoPickAttempted.current) return;
+        if (localStorage.getItem('locoxo_location_prompted') === '1') return;
+        autoPickAttempted.current = true;
+        localStorage.setItem('locoxo_location_prompted', '1');
+
+        (async () => {
+            try {
+                const position = await getCurrentPosition();
+                const { latitude, longitude } = position.coords;
+                const { city, state, pincode, formatted } = await reverseGeocode(latitude, longitude);
+                const label = city || formatted;
+                if (isServiceable(pincode, state)) {
+                    applyLocation(label, pincode);
+                    toast.success(`Delivering to ${label}${pincode ? ` - ${pincode}` : ''}`);
+                } else if (label) {
+                    applyLocation(label, pincode);
+                    toast.info(`We currently deliver only in Rajasthan. ${label} isn't serviceable yet.`);
+                }
+            } catch (err) {
+                // Silent on landing — user denied permission or geocoding unavailable.
+                console.warn('Auto location skipped:', err?.message || err);
+            }
+        })();
     }, [googleMapsLoaded]);
 
     const logout = () => {
@@ -74,100 +125,58 @@ const Navbar = () => {
 
     const handleLocationSearch = (value) => {
         setLocationInput(value);
-        
-        if (value.length > 2) {
-            // Check if Google Maps API is loaded
-            if (!googleMapsLoaded || !autocompleteService.current) {
-                console.warn('Google Places API not loaded yet. Please wait...');
-                setPredictions([]);
-                return;
-            }
-            
-            autocompleteService.current.getPlacePredictions(
-                {
-                    input: value,
-                    componentRestrictions: { country: 'in' },
-                    types: ['(cities)']
-                },
-                (predictions, status) => {
-                    if (status === window.google?.maps?.places?.PlacesServiceStatus?.OK && predictions) {
-                        setPredictions(predictions);
-                    } else if (status === window.google?.maps?.places?.PlacesServiceStatus?.ZERO_RESULTS) {
-                        setPredictions([]);
-                    } else {
-                        setPredictions([]);
-                        console.error('Places API error:', status);
-                    }
-                }
-            );
-        } else {
+
+        if (searchDebounce.current) clearTimeout(searchDebounce.current);
+
+        if (value.trim().length <= 2) {
             setPredictions([]);
+            return;
         }
+
+        if (!googleMapsLoaded) {
+            setPredictions([]);
+            return;
+        }
+
+        // Debounce so we don't fire a request on every keystroke.
+        searchDebounce.current = setTimeout(async () => {
+            try {
+                const results = await fetchCitySuggestions(value);
+                setPredictions(results);
+            } catch (error) {
+                console.error('Places autocomplete error:', error);
+                setPredictions([]);
+            }
+        }, 300);
     };
 
     const selectLocation = async (prediction) => {
-        if (!googleMapsLoaded || !geocoder.current) {
+        if (!googleMapsLoaded) {
             toast.error('Location service not ready. Please try again.');
             return;
         }
-        
+
         try {
-            const { results } = await geocoder.current.geocode({ placeId: prediction.place_id });
-            
-            if (results && results[0]) {
-                const addressComponents = results[0].address_components;
-                let pincode = '';
-                let city = '';
+            const { city, state, pincode } = await getPlaceDetails(prediction.placeId);
+            const label = city || prediction.description;
 
-                addressComponents.forEach(component => {
-                    if (component.types.includes('postal_code')) {
-                        pincode = component.long_name;
-                    }
-                    if (component.types.includes('locality')) {
-                        city = component.long_name;
-                    }
-                });
-
-                if (pincode) {
-                    // Check if pincode is serviceable
-                    const isServiceable = serviceablePincodes.some(code => 
-                        pincode.startsWith(code.substring(0, 3))
-                    );
-
-                    if (isServiceable) {
-                        setSelectedLocation(city || prediction.description);
-                        setSelectedPincode(pincode);
-                        setShowLocationModal(false);
-                        setLocationInput('');
-                        setPredictions([]);
-                        toast.success(`Delivery available in ${city} - ${pincode}`);
-                    } else {
-                        toast.error(`Sorry, we currently deliver only in Rajasthan. ${city} - ${pincode} is not serviceable yet.`);
-                    }
-                } else {
-                    // No pincode found, still allow selection but warn
-                    setSelectedLocation(city || prediction.description);
-                    setShowLocationModal(false);
-                    setLocationInput('');
-                    setPredictions([]);
-                    toast.warning(`Location selected: ${city || prediction.description}. Pincode verification unavailable.`);
-                }
+            if (isServiceable(pincode, state)) {
+                applyLocation(label, pincode);
+                setShowLocationModal(false);
+                setLocationInput('');
+                setPredictions([]);
+                toast.success(`Delivery available in ${label}${pincode ? ` - ${pincode}` : ''}`);
             } else {
-                toast.error('Unable to get location details. Please try again.');
+                toast.error(`Sorry, we currently deliver only in Rajasthan. ${label}${pincode ? ` - ${pincode}` : ''} is not serviceable yet.`);
             }
         } catch (error) {
-            console.error('Geocoding error:', error);
+            console.error('Place details error:', error);
             toast.error('Unable to get location details. Please try again.');
         }
     };
 
     const useCurrentLocation = async () => {
-        if (!navigator.geolocation) {
-            toast.error('Geolocation is not supported by your browser');
-            return;
-        }
-
-        if (!googleMapsLoaded || !geocoder.current) {
+        if (!googleMapsLoaded) {
             toast.error('Location service not ready. Please wait a moment and try again.');
             return;
         }
@@ -176,64 +185,25 @@ const Navbar = () => {
         toast.info('Getting your location...');
 
         try {
-            const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                });
-            });
-
+            const position = await getCurrentPosition();
             const { latitude, longitude } = position.coords;
-
-            // Use modern Promise-based geocode
-            const { results } = await geocoder.current.geocode({
-                location: { lat: latitude, lng: longitude }
-            });
+            const { city, state, pincode, formatted } = await reverseGeocode(latitude, longitude);
+            const label = city || formatted;
 
             setLoadingLocation(false);
 
-            if (results && results[0]) {
-                const addressComponents = results[0].address_components;
-                let pincode = '';
-                let city = '';
-                let fullAddress = results[0].formatted_address;
-
-                addressComponents.forEach(component => {
-                    if (component.types.includes('postal_code')) {
-                        pincode = component.long_name;
-                    }
-                    if (component.types.includes('locality')) {
-                        city = component.long_name;
-                    }
-                });
-
-                if (pincode) {
-                    const isServiceable = serviceablePincodes.some(code => 
-                        pincode.startsWith(code.substring(0, 3))
-                    );
-
-                    if (isServiceable) {
-                        setSelectedLocation(city || fullAddress);
-                        setSelectedPincode(pincode);
-                        setShowLocationModal(false);
-                        toast.success(`Delivery available in ${city} - ${pincode}`);
-                    } else {
-                        toast.error(`Sorry, we currently deliver only in Rajasthan. ${city} - ${pincode} is not serviceable yet.`);
-                    }
-                } else {
-                    setSelectedLocation(city || fullAddress);
-                    setShowLocationModal(false);
-                    toast.warning(`Location detected: ${city || fullAddress}`);
-                }
+            if (isServiceable(pincode, state)) {
+                applyLocation(label, pincode);
+                setShowLocationModal(false);
+                toast.success(`Delivery available in ${label}${pincode ? ` - ${pincode}` : ''}`);
             } else {
-                toast.error('Unable to get address from your location');
+                toast.error(`Sorry, we currently deliver only in Rajasthan. ${label}${pincode ? ` - ${pincode}` : ''} is not serviceable yet.`);
             }
         } catch (error) {
             setLoadingLocation(false);
             console.error('Location error:', error);
 
-            if (error.code) {
+            if (error && error.code) {
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
                         toast.error('Location permission denied. Please enable location access.');
@@ -248,7 +218,8 @@ const Navbar = () => {
                         toast.error('An error occurred while getting your location.');
                 }
             } else {
-                toast.error('Unable to get address from your location');
+                // Reverse geocoding failed — most often the Geocoding API isn't enabled.
+                toast.error('Unable to resolve your address. Please search your city manually.');
             }
         }
     };
@@ -489,7 +460,7 @@ const Navbar = () => {
                   <div className='space-y-2'>
                     {predictions.map((prediction) => (
                       <button
-                        key={prediction.place_id}
+                        key={prediction.placeId}
                         onClick={() => selectLocation(prediction)}
                         className='w-full p-3 text-left rounded border-2 border-gray-200 hover:border-black transition-colors flex items-center gap-2'
                       >

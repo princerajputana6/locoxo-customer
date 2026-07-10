@@ -211,6 +211,15 @@ const Login = () => {
               </div>
             </div>
 
+            {currentState === 'Login' && (
+              <div className='text-right -mt-2'>
+                <button type='button' onClick={() => navigate('/forgot-password')}
+                  className='text-sm text-locoxo-blue font-semibold hover:underline'>
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
             <button type='submit'
               className='w-full bg-locoxo-orange hover:bg-locoxo-orange-dark text-white py-4 font-semibold tracking-wide transition-colors'>
               {currentState === 'Login' ? 'SIGN IN' : 'CREATE ACCOUNT'}

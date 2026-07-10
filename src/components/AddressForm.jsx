@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Home, Briefcase, MapPin, Search, Loader2 } from 'lucide-react'
 import useGoogleMaps from '../hooks/useGoogleMaps'
+import { fetchAddressSuggestions, getPlaceRaw, reverseGeocodeRaw, getCurrentPosition } from '../utils/locationService'
 
 const empty = {
   type: 'home',
@@ -26,37 +27,33 @@ const TYPES = [
 
 const AddressForm = ({ initial, onSubmit, onCancel, submitLabel = 'Save Address' }) => {
   const { isLoaded } = useGoogleMaps()
-  const autocompleteRef = useRef(null)
-  const geocoderRef = useRef(null)
+  const searchDebounce = useRef(null)
   const [form, setForm] = useState({ ...empty, ...(initial || {}) })
   const [query, setQuery] = useState('')
   const [predictions, setPredictions] = useState([])
   const [resolving, setResolving] = useState(false)
 
-  useEffect(() => {
-    if (isLoaded && window.google?.maps?.places) {
-      autocompleteRef.current = new window.google.maps.places.AutocompleteService()
-      geocoderRef.current = new window.google.maps.Geocoder()
-    }
-  }, [isLoaded])
-
   const onSearch = (value) => {
     setQuery(value)
-    if (value.length < 3 || !autocompleteRef.current) {
+    if (searchDebounce.current) clearTimeout(searchDebounce.current)
+    if (value.trim().length < 3 || !isLoaded) {
       setPredictions([])
       return
     }
-    autocompleteRef.current.getPlacePredictions(
-      { input: value, componentRestrictions: { country: 'in' } },
-      (preds, status) => {
-        if (status === window.google?.maps?.places?.PlacesServiceStatus?.OK && preds) {
-          setPredictions(preds)
-        } else {
-          setPredictions([])
-        }
+    searchDebounce.current = setTimeout(async () => {
+      try {
+        const results = await fetchAddressSuggestions(value)
+        setPredictions(results)
+      } catch (err) {
+        console.error(err)
+        setPredictions([])
       }
-    )
+    }, 300)
   }
+
+  // Reads a value from an address component regardless of API shape
+  // (new Places -> longText, legacy Geocoder -> long_name).
+  const compValue = (c) => c.longText || c.long_name || ''
 
   const applyPlace = (components, formatted, location) => {
     let street = ''
@@ -70,13 +67,13 @@ const AddressForm = ({ initial, onSubmit, onCancel, submitLabel = 'Save Address'
 
     components.forEach((c) => {
       const t = c.types
-      if (t.includes('street_number')) streetNumber = c.long_name
-      else if (t.includes('route')) route = c.long_name
-      else if (t.includes('sublocality') || t.includes('sublocality_level_1') || t.includes('neighborhood')) sublocality = c.long_name
-      else if (t.includes('locality')) city = c.long_name
-      else if (t.includes('administrative_area_level_1')) state = c.long_name
-      else if (t.includes('postal_code')) zipCode = c.long_name
-      else if (t.includes('country')) country = c.long_name
+      if (t.includes('street_number')) streetNumber = compValue(c)
+      else if (t.includes('route')) route = compValue(c)
+      else if (t.includes('sublocality') || t.includes('sublocality_level_1') || t.includes('neighborhood')) sublocality = compValue(c)
+      else if (t.includes('locality')) city = compValue(c)
+      else if (t.includes('administrative_area_level_1')) state = compValue(c)
+      else if (t.includes('postal_code')) zipCode = compValue(c)
+      else if (t.includes('country')) country = compValue(c)
     })
 
     street = [streetNumber, route, sublocality].filter(Boolean).join(', ') || formatted
@@ -88,19 +85,17 @@ const AddressForm = ({ initial, onSubmit, onCancel, submitLabel = 'Save Address'
       state,
       zipCode,
       country,
-      lat: location?.lat?.() ?? location?.lat ?? null,
-      lng: location?.lng?.() ?? location?.lng ?? null,
+      lat: location?.lat ?? null,
+      lng: location?.lng ?? null,
     }))
   }
 
   const selectPrediction = async (prediction) => {
-    if (!geocoderRef.current) return
+    if (!isLoaded) return
     setResolving(true)
     try {
-      const { results } = await geocoderRef.current.geocode({ placeId: prediction.place_id })
-      if (results?.[0]) {
-        applyPlace(results[0].address_components, results[0].formatted_address, results[0].geometry?.location)
-      }
+      const { addressComponents, formatted, location } = await getPlaceRaw(prediction.placeId)
+      applyPlace(addressComponents, formatted, location)
     } catch (err) {
       console.error(err)
     } finally {
@@ -111,18 +106,14 @@ const AddressForm = ({ initial, onSubmit, onCancel, submitLabel = 'Save Address'
   }
 
   const useMyLocation = async () => {
-    if (!navigator.geolocation || !geocoderRef.current) return
+    if (!isLoaded) return
     setResolving(true)
     try {
-      const pos = await new Promise((res, rej) =>
-        navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 10000 })
-      )
+      const pos = await getCurrentPosition()
       const { latitude, longitude } = pos.coords
-      const { results } = await geocoderRef.current.geocode({ location: { lat: latitude, lng: longitude } })
-      if (results?.[0]) {
-        applyPlace(results[0].address_components, results[0].formatted_address, { lat: latitude, lng: longitude })
-        setQuery(results[0].formatted_address)
-      }
+      const { addressComponents, formatted, location } = await reverseGeocodeRaw(latitude, longitude)
+      applyPlace(addressComponents, formatted, location)
+      setQuery(formatted)
     } catch (err) {
       console.error(err)
     } finally {
@@ -184,12 +175,12 @@ const AddressForm = ({ initial, onSubmit, onCancel, submitLabel = 'Save Address'
               {predictions.map((p) => (
                 <button
                   type='button'
-                  key={p.place_id}
+                  key={p.placeId}
                   onClick={() => selectPrediction(p)}
                   className='w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0'
                 >
-                  <p className='text-sm font-medium'>{p.structured_formatting?.main_text || p.description}</p>
-                  <p className='text-xs text-gray-500 mt-0.5'>{p.structured_formatting?.secondary_text}</p>
+                  <p className='text-sm font-medium'>{p.mainText || p.description}</p>
+                  <p className='text-xs text-gray-500 mt-0.5'>{p.secondaryText}</p>
                 </button>
               ))}
             </div>

@@ -1,9 +1,11 @@
 import React from 'react'
 import Title from '../components/Title'
 
-const Section = ({ title, children }) => (
+const Section = ({ number, title, children }) => (
   <div className='mb-8'>
-    <h2 className='text-base font-bold tracking-wide mb-3 border-l-4 border-black pl-4'>{title}</h2>
+    <h2 className='text-base font-bold tracking-wide mb-3 border-l-4 border-black pl-4'>
+      {number}. {title}
+    </h2>
     <div className='text-gray-600 leading-relaxed text-sm space-y-3 pl-4'>{children}</div>
   </div>
 )
@@ -17,87 +19,229 @@ const CookiesPolicy = () => {
 
       <div className='max-w-4xl'>
         <div className='bg-gray-50 border border-gray-200 p-6 mb-10 text-sm text-gray-600 space-y-1'>
-          <p><span className='font-semibold'>Effective Date:</span> 17 May 2026</p>
-          <p><span className='font-semibold'>Website:</span> www.locoxo.com</p>
-          <p><span className='font-semibold'>Company:</span> Locoxo Apparels</p>
-          <p><span className='font-semibold'>Contact Email:</span> <a href='mailto:id-support@locoxo.com' className='underline hover:text-black'>id-support@locoxo.com</a></p>
+          <p className='font-semibold text-gray-800 text-base'>Cookies Policy – LOCOXO</p>
+          <p><span className='font-semibold'>Last updated:</span> 17 July 2026</p>
+          <p><span className='font-semibold'>Effective date:</span> 17 July 2026</p>
         </div>
 
-        <Section title='Introduction'>
+        <p className='text-gray-600 text-sm leading-relaxed mb-10'>
+          This Cookies Policy explains how LOCOXO, operated by LOCOXO APPARELS ("we", "us", "our"), uses cookies and similar
+          tracking technologies on our website www.locoxo.com (the "Site"). It describes what cookies are, what types we use,
+          why we use them, and how you can manage your cookie preferences.
+        </p>
+
+        <Section number='1' title='What Are Cookies?'>
           <p>
-            This Cookies Policy explains how Locoxo Apparels ("Company", "we", "our", or "us") uses cookies and similar technologies when you visit or interact with www.locoxo.com. It explains what cookies are, why they are used, the types of cookies that may be used on the website, and the choices available to website visitors regarding those cookies.
+            Cookies are small text files that are placed on your device (computer, smartphone, or tablet) when you visit a
+            website. They help the website remember your actions and preferences over time, such as login status, items in
+            your cart, language choice, and other settings.
+          </p>
+          <p>
+            Cookies do not usually contain personally identifiable information, but data stored in cookies may be linked to
+            your personal data (e.g., account ID, email hash) for purposes like personalization and analytics.
+          </p>
+          <p>
+            In addition to cookies, we and our partners may use similar technologies such as pixels, tags, web beacons, local
+            storage, and SDKs (collectively, "tracking technologies"). This policy covers all such technologies.
+          </p>
+          <p>
+            For the purposes of India's Digital Personal Data Protection Act, 2023 (DPDPA), cookies and similar tracking
+            technologies that can identify or be linked to you are treated as processing of personal data.
           </p>
         </Section>
 
-        <Section title='What Are Cookies?'>
+        <Section number='2' title='Why We Use Cookies'>
+          <p>We use cookies and similar technologies to:</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Ensure the Site works correctly (e.g., login, cart, checkout, security).</li>
+            <li>Remember your preferences (language, currency, recently viewed items).</li>
+            <li>Analyze how visitors use the Site to improve performance and user experience.</li>
+            <li>Personalize content and product recommendations.</li>
+            <li>Measure the effectiveness of our marketing campaigns.</li>
+            <li>Support fraud detection and prevention, including via our payment gateway.</li>
+          </ul>
           <p>
-            Cookies are small text files stored on your device when you visit a website. They help websites function properly, remember user preferences, improve performance, maintain sessions, and collect information about how visitors use a site.
+            Under India's Digital Personal Data Protection Act, 2023 (DPDPA), cookies that process personal data generally
+            require your explicit, informed, specific, and unambiguous consent, except for strictly necessary cookies needed
+            to provide the service you requested.
           </p>
         </Section>
 
-        <Section title='How Cookies Are Used'>
-          <p>
-            Locoxo Apparels uses cookies and similar technologies to operate the website, provide core shopping features, remember your preferences, keep your session active, help secure the website, analyze traffic, and support marketing and advertising activities where permitted.
-          </p>
-          <p>
-            For an e-commerce clothing website, cookies may also be used to remember items placed in a shopping cart, support login or checkout functionality, understand customer behavior, and improve product discovery and overall user experience.
-          </p>
-        </Section>
-
-        <Section title='Categories of Cookies'>
-          <p>The website may use the following categories of cookies:</p>
-          <div className='space-y-4 mt-2'>
+        <Section number='3' title='Types of Cookies We Use'>
+          <div className='space-y-4'>
             <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Strictly Necessary Cookies</h3>
-              <p>These cookies are essential for the operation of the website and enable important features such as page navigation, security, shopping cart use, checkout, and access to secure areas. Certain strictly necessary cookies do not require prior consent when they are used solely to provide a service specifically requested by the user.</p>
+              <h3 className='font-semibold text-gray-800 mb-1'>3.1 Strictly Necessary (Essential) Cookies</h3>
+              <p>These cookies are required for the basic functioning of the Site and cannot be switched off in our systems. They are usually set only in response to actions you make, such as logging in to your account, adding items to your cart and completing checkout, maintaining session security and preventing fraud (including via Cashfree Payment Gateway), and load balancing and basic security measures. These cookies do not require your consent under the DPDPA framework but are still described here for transparency.</p>
+              <p className='mt-1 text-xs text-gray-500'>Legal basis: Performance of contract and legitimate interests (security, fraud prevention).</p>
             </div>
             <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Functional Cookies</h3>
-              <p>These cookies allow the website to remember choices made by users, such as language, location, and saved preferences, so that a more personalized experience can be provided.</p>
+              <h3 className='font-semibold text-gray-800 mb-1'>3.2 Functional / Preference Cookies</h3>
+              <p>These cookies remember choices you make to provide enhanced, personalized features, such as language and region preferences, font size and display settings, and recently viewed products or saved filters.</p>
+              <p className='mt-1 text-xs text-gray-500'>Legal basis: Legitimate interests (improving user experience) and, where required by law, your consent.</p>
             </div>
             <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Analytics Cookies</h3>
-              <p>These cookies help measure how visitors interact with the website, including which pages are viewed most often and how users move through the website. Analytics cookies generally require consent when they are not strictly necessary.</p>
+              <h3 className='font-semibold text-gray-800 mb-1'>3.3 Analytics / Performance Cookies</h3>
+              <p>These cookies help us understand how visitors interact with the Site by collecting anonymous or pseudonymous information, such as pages visited and time spent, traffic sources and referral URLs, error logs and performance metrics, and device type, browser, and operating system. We use tools such as Google Analytics and Hotjar (if enabled) for analytics. Data is typically aggregated and does not directly identify you.</p>
+              <p className='mt-1 text-xs text-gray-500'>Legal basis: Legitimate interests (site improvement) and, where required by law, your consent.</p>
             </div>
             <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Marketing Cookies</h3>
-              <p>These cookies may be used to show relevant advertisements, limit how often ads are seen, and measure the effectiveness of advertising campaigns. Marketing and advertising cookies generally require user consent before being placed on a device.</p>
-            </div>
-            <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Third-Party Cookies</h3>
-              <p>Some cookies may be placed by third-party service providers such as analytics vendors, advertising partners, embedded service providers, payment processors, or social media integrations. These third parties may process information according to their own privacy notices.</p>
+              <h3 className='font-semibold text-gray-800 mb-1'>3.4 Marketing / Advertising Cookies</h3>
+              <p>These cookies are used to measure the performance of our ads on platforms like Meta (Facebook/Instagram) and Google Ads, build audience segments and show you relevant ads on other websites and apps, limit the number of times you see the same ad, and attribute conversions (e.g., purchases) to specific campaigns. We may use Meta Pixel, Google Ads tags, and similar tools. Some of these cookies may be set by third parties and may involve data transfers outside India.</p>
+              <p className='mt-1 text-xs text-gray-500'>Legal basis: Your explicit consent. You can withdraw consent at any time via our cookie settings or browser controls.</p>
             </div>
           </div>
         </Section>
 
-        <Section title='Consent and Control'>
+        <Section number='4' title='Which Cookies Require Consent?'>
+          <div className='overflow-x-auto'>
+            <table className='w-full text-left border border-gray-200 text-sm'>
+              <thead className='bg-gray-50'>
+                <tr>
+                  <th className='border border-gray-200 px-3 py-2 font-semibold'>Cookie category</th>
+                  <th className='border border-gray-200 px-3 py-2 font-semibold'>Consent required?</th>
+                  <th className='border border-gray-200 px-3 py-2 font-semibold'>Examples</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className='border border-gray-200 px-3 py-2'>Strictly necessary</td>
+                  <td className='border border-gray-200 px-3 py-2'>No (but must be disclosed)</td>
+                  <td className='border border-gray-200 px-3 py-2'>Login session, cart, security tokens</td>
+                </tr>
+                <tr>
+                  <td className='border border-gray-200 px-3 py-2'>Functional / preference</td>
+                  <td className='border border-gray-200 px-3 py-2'>Yes</td>
+                  <td className='border border-gray-200 px-3 py-2'>Language, saved filters</td>
+                </tr>
+                <tr>
+                  <td className='border border-gray-200 px-3 py-2'>Analytics / performance</td>
+                  <td className='border border-gray-200 px-3 py-2'>Yes</td>
+                  <td className='border border-gray-200 px-3 py-2'>Google Analytics, Hotjar</td>
+                </tr>
+                <tr>
+                  <td className='border border-gray-200 px-3 py-2'>Marketing / advertising</td>
+                  <td className='border border-gray-200 px-3 py-2'>Yes</td>
+                  <td className='border border-gray-200 px-3 py-2'>Meta Pixel, Google Ads</td>
+                </tr>
+                <tr>
+                  <td className='border border-gray-200 px-3 py-2'>Third-party trackers</td>
+                  <td className='border border-gray-200 px-3 py-2'>Yes</td>
+                  <td className='border border-gray-200 px-3 py-2'>Social embeds, chatbot widgets</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Section>
+
+        <Section number='5' title='First-Party vs Third-Party Cookies'>
           <p>
-            Where required by applicable law, non-essential cookies such as analytics, advertising, and certain third-party cookies will only be placed after the user has provided consent. Consent for different cookie purposes should be specific, and users should be able to withdraw consent as easily as they gave it.
+            First-party cookies are set directly by www.locoxo.com and are primarily used for essential functions, preferences,
+            and first-party analytics.
+          </p>
+          <p>Third-party cookies are set by trusted partners, such as:</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Cashfree Payments – for payment processing and fraud detection (essential).</li>
+            <li>Google Analytics / Google Ads – for analytics and advertising.</li>
+            <li>Meta (Facebook/Instagram) – for advertising and conversion tracking.</li>
+            <li>Hotjar (if used) – for behavior analytics (heatmaps, session recordings).</li>
+          </ul>
+          <p>These third parties have their own privacy and cookies policies, which we encourage you to review.</p>
+        </Section>
+
+        <Section number='6' title='How Long Cookies Last'>
+          <p>Cookie durations vary by type and purpose:</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Session cookies: Expire when you close your browser (e.g., cart session, login session).</li>
+            <li>Persistent cookies: Remain on your device for a set period, ranging from a few days to up to 2 years, depending on the cookie.</li>
+            <li>Analytics cookies: often 12–24 months.</li>
+            <li>Marketing cookies: often 30 days to 1 year (or as defined by the provider).</li>
+            <li>Preference cookies: often 6–12 months.</li>
+          </ul>
+          <p>Exact durations for each cookie are listed in our cookie declaration (if implemented via a consent manager).</p>
+        </Section>
+
+        <Section number='7' title='How We Meet DPDPA Notice & Consent Requirements'>
+          <p>
+            Our cookie notice and this policy are designed to meet notice requirements under India's Digital Personal Data
+            Protection Act, 2023 (DPDPA) and DPDP Rules 2025, including:
+          </p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Clear identity and contact details of the data fiduciary (LOCOXO APPARELS).</li>
+            <li>Plain-language description of what data is collected via cookies and why.</li>
+            <li>Separate explanation of each purpose (essential, analytics, marketing, personalization).</li>
+            <li>Information on data retention periods for cookie-based data.</li>
+            <li>Details of third parties that receive cookie data and links to their policies.</li>
+            <li>Clear explanation of your right to withdraw consent and how to do it.</li>
+          </ul>
+          <p>In line with DPDPA and DPDP Rules 2025, your consent for cookies must be:</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li><span className='font-semibold'>Free:</span> Not forced as a condition of using the Site, except for strictly necessary cookies.</li>
+            <li><span className='font-semibold'>Specific:</span> Separate for each purpose (e.g., analytics, marketing, personalization).</li>
+            <li><span className='font-semibold'>Informed:</span> You are told what data is collected and why.</li>
+            <li><span className='font-semibold'>Unambiguous:</span> Given through a clear affirmative action (e.g., clicking "Accept"). Pre-ticked boxes or passive browsing do not count as consent.</li>
+          </ul>
+        </Section>
+
+        <Section number='8' title='How to Manage Your Cookie Preferences'>
+          <h3 className='font-semibold text-gray-800'>8.1 Cookie Banner / Consent Manager</h3>
+          <p>
+            When you first visit the Site, you may see a cookie banner or consent notice asking you to choose which categories
+            of cookies to accept. You can accept all cookies, reject non-essential cookies, or customize your choices by
+            category (e.g., accept analytics but reject marketing).
           </p>
           <p>
-            Users may manage cookie preferences through the cookie banner or consent tool made available on the website, where applicable. In addition, most web browsers allow users to control, block, or delete cookies through browser settings, although disabling some cookies may affect website functionality.
+            You can change your preferences at any time by clicking the "Cookie Settings" or "Manage Cookies" link in the
+            footer of our Site (where available). Withdrawing consent does not affect the lawfulness of processing based on
+            your earlier consent and does not prevent the use of strictly necessary cookies required to operate the Site.
+          </p>
+          <h3 className='font-semibold text-gray-800'>8.2 Browser Controls</h3>
+          <p>You can also manage or delete cookies through your browser settings: block all cookies or block third-party cookies, delete cookies for specific sites or all sites, and clear browsing data (cookies, cache, history). Note: Disabling certain cookies may affect Site functionality (e.g., cart, login, personalized features).</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Chrome: Settings → Privacy and security → Cookies and other site data</li>
+            <li>Firefox: Options/Preferences → Privacy &amp; Security → Cookies and Site Data</li>
+            <li>Safari: Preferences → Privacy → Cookies and website data</li>
+            <li>Edge: Settings → Cookies and site permissions</li>
+          </ul>
+          <h3 className='font-semibold text-gray-800'>8.3 Opt-Out of Interest-Based Ads</h3>
+          <p>You can opt out of personalized advertising from major providers:</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Google Ads: <a href='https://adssettings.google.com' target='_blank' rel='noopener noreferrer' className='underline hover:text-black'>adssettings.google.com</a></li>
+            <li>Meta (Facebook): <a href='https://www.facebook.com/ads/preferences' target='_blank' rel='noopener noreferrer' className='underline hover:text-black'>facebook.com/ads/preferences</a></li>
+            <li>Industry opt-outs (region-dependent): e.g., NAI, DAA, EDAA portals</li>
+          </ul>
+          <p>Opting out does not stop all ads; it only stops interest-based personalization.</p>
+        </Section>
+
+        <Section number='9' title='Product Colour Disclaimer'>
+          <p>
+            The product colours shown in the photographs may vary slightly from the actual product due to factors such as
+            lighting during the photoshoot, camera settings, and the screen resolution and display settings of your device.
+          </p>
+          <p>
+            This disclaimer applies to all product images displayed on www.locoxo.com and our social media channels. Minor
+            variations in colour do not constitute a defect and are not eligible for return or exchange on that basis alone,
+            unless otherwise stated in our Return &amp; Refund Policy.
           </p>
         </Section>
 
-        <Section title='Third-Party Services'>
+        <Section number='10' title='Updates to This Cookies Policy'>
           <p>
-            Locoxo Apparels may use trusted third-party tools or services for analytics, payment processing, advertising, customer support, social media integrations, or website performance monitoring. When such services place cookies or similar technologies, those cookies are governed in part by the relevant third party's own policies and practices.
+            We may update this Cookies Policy from time to time to reflect changes in our practices, technology, or legal
+            requirements. The "Last updated" date at the top will be revised. Significant changes will be notified via a
+            banner on the Site, email, or other appropriate means. We encourage you to review this page periodically.
+            Continued use of the Site after changes constitutes acceptance of the updated policy.
           </p>
         </Section>
 
-        <Section title='Updates to This Policy'>
-          <p>
-            This Cookies Policy may be updated from time to time to reflect changes in applicable law, technology, business operations, or the cookies used on the website. Any updates will be posted on this page with a revised effective date.
-          </p>
-        </Section>
-
-        <Section title='Contact Information'>
-          <p>For any questions about this Cookies Policy or the use of cookies on the website, please contact:</p>
+        <Section number='11' title='Contact Us'>
+          <p>If you have any questions about our use of cookies or this Cookies Policy, you can contact us at:</p>
           <div className='bg-gray-50 border border-gray-200 p-4 mt-2'>
-            <p className='font-semibold text-gray-800'>Locoxo Apparels</p>
-            <p>Website: www.locoxo.com</p>
-            <p>Email: <a href='mailto:id-support@locoxo.com' className='underline hover:text-black'>id-support@locoxo.com</a></p>
+            <p className='font-semibold text-gray-800'>LOCOXO APPARELS</p>
+            <p>Email: <a href='mailto:locoxo.support@gmail.com' className='underline hover:text-black'>locoxo.support@gmail.com</a> (monitored daily)</p>
+            <p>Phone: +91 88245 89682 (Available Monday to Saturday, 10:00 AM to 8:00 PM IST; Sunday closed)</p>
+            <p>Address: 2400/67, Friends Colony, Street No. 2, Badi Haibowal, Ludhiana, Punjab – 141001, India</p>
           </div>
+          <p>We aim to respond to cookie-related queries within 15 days.</p>
         </Section>
       </div>
     </div>

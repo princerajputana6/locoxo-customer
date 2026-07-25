@@ -27,6 +27,10 @@ import Referral from './pages/Referral'
 import CookiesPolicy from './pages/CookiesPolicy'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import GrievancePolicy from './pages/GrievancePolicy'
+import Terms from './pages/Terms'
+import ReturnPolicy from './pages/ReturnPolicy'
+import CancellationPolicy from './pages/CancellationPolicy'
+import FAQ from './pages/FAQ'
 
 const App = () => {
   return (
@@ -57,6 +61,10 @@ const App = () => {
         <Route path='/cookies-policy' element={<CookiesPolicy />} />
         <Route path='/privacy-policy' element={<PrivacyPolicy />} />
         <Route path='/grievance-policy' element={<GrievancePolicy />} />
+        <Route path='/terms' element={<Terms />} />
+        <Route path='/return-policy' element={<ReturnPolicy />} />
+        <Route path='/cancellation-policy' element={<CancellationPolicy />} />
+        <Route path='/faq' element={<FAQ />} />
       </Routes>
       <Footer />
     </div>

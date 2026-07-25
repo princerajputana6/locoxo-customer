@@ -14,156 +14,119 @@ const GrievancePolicy = () => {
   return (
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-10'>
       <div className='mb-10'>
-        <Title text1={'GRIEVANCE REDRESSAL'} text2={'POLICY'} />
+        <Title text1={'GRIEVANCE'} text2={'POLICY'} />
       </div>
 
       <div className='max-w-4xl'>
         <div className='bg-gray-50 border border-gray-200 p-6 mb-10 text-sm text-gray-600 space-y-1'>
-          <p className='font-semibold text-gray-800 text-base'>Grievance Redressal Policy – Locoxo Apparels</p>
-          <p><span className='font-semibold'>Effective Date:</span> 18 May 2026</p>
+          <p className='font-semibold text-gray-800 text-base'>Grievance Policy – LOCOXO</p>
+          <p><span className='font-semibold'>Last updated:</span> 17 July 2026</p>
+          <p><span className='font-semibold'>Effective date:</span> 17 July 2026</p>
         </div>
 
+        <p className='text-gray-600 text-sm leading-relaxed mb-4'>
+          This Grievance Policy explains how LOCOXO, operated by LOCOXO APPARELS ("we", "us", "our"), handles complaints,
+          concerns, and disputes raised by customers using our website www.locoxo.com (the "Site").
+        </p>
         <p className='text-gray-600 text-sm leading-relaxed mb-10'>
-          This Grievance Redressal Policy ("Policy") applies to all customers and users of www.locoxo.com, owned and operated by Locoxo Apparels. This Policy explains the process for submitting, tracking, and resolving grievances relating to products, orders, payments, deliveries, cancellations, returns, refunds, and related customer-support issues.
+          This policy is prepared in accordance with applicable Indian laws, including the Consumer Protection Act, 2019 and
+          the Consumer Protection (E-Commerce) Rules, 2020. It should be read together with our Privacy Policy, Cookies Policy,
+          Terms of Use, Return &amp; Refund Policy, and Shipping Policy.
         </p>
 
-        <Section number='1' title='Business Details'>
-          <div className='bg-gray-50 border border-gray-200 p-5 space-y-1'>
-            <p><span className='font-semibold'>Business Name:</span> Locoxo Apparels</p>
-            <p><span className='font-semibold'>Website:</span> www.locoxo.com</p>
-            <p><span className='font-semibold'>Registered Address:</span><br />
-              Building No./Flat No. 2400/67, Friends Colony, Street No. 2,<br />
-              Near Rohit Trading Company, Badi Haibowal,<br />
-              Ludhiana, Punjab 141001, India
-            </p>
-            <p><span className='font-semibold'>Customer Support Email:</span> <a href='mailto:support@locoxo.com' className='underline hover:text-black'>support@locoxo.com</a></p>
-            <p><span className='font-semibold'>Grievance Email:</span> <a href='mailto:support@locoxo.com' className='underline hover:text-black'>support@locoxo.com</a></p>
-            <p><span className='font-semibold'>Phone / WhatsApp:</span> <a href='tel:+919876543210' className='underline hover:text-black'>+91 9876543210</a></p>
-            <p><span className='font-semibold'>Business Hours:</span> 10:00 AM to 8:00 PM, Monday to Saturday</p>
-          </div>
-        </Section>
-
-        <Section number='2' title='Purpose'>
-          <p>
-            This Policy is intended to provide a fair, transparent, and efficient grievance redressal mechanism for customers of Locoxo Apparels. It explains how complaints are received, acknowledged, and resolved, and aligns with standard e-commerce grievance-handling expectations.
-          </p>
-        </Section>
-
-        <Section number='3' title='Scope of Grievances'>
-          <p>This Policy covers complaints relating to:</p>
-          <ul className='list-disc list-inside space-y-1 mt-2'>
-            <li>Defective, damaged, or incorrect products</li>
-            <li>Size, colour, design, or item mismatch</li>
-            <li>Delay in shipping or delivery</li>
-            <li>Missing items from an order</li>
-            <li>Payment failure, duplicate deduction, or billing-related issues</li>
-            <li>Refund, return, or exchange-related delays</li>
-            <li>Cancellation-related disputes</li>
-            <li>Poor, delayed, or unsatisfactory customer support</li>
+        <Section number='1' title='Scope of This Policy'>
+          <p>This Grievance Policy applies to all users, visitors, and customers of www.locoxo.com who purchase products from LOCOXO, create an account on the Site, or use any feature or service offered on the Site.</p>
+          <p>It covers complaints related to:</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Orders and delivery (late delivery, wrong item, missing items, damaged goods)</li>
+            <li>Product quality (defects, issues beyond normal colour/size variation as per our Product Colour Disclaimer)</li>
+            <li>Refunds and returns (delay, rejection, partial refund, condition of returned items)</li>
+            <li>Payments (failed transactions, double charges, refund delays, payment gateway issues)</li>
+            <li>Account issues (login problems, unauthorized access, account closure requests)</li>
+            <li>Website issues (pricing errors, coupon/promo code issues, technical bugs)</li>
+            <li>Privacy and data (unwanted messages, data access/deletion requests, consent withdrawal)</li>
+            <li>Advertising and product listings (misleading descriptions, incorrect prices displayed)</li>
           </ul>
         </Section>
 
-        <Section number='4' title='How to Raise a Grievance'>
-          <p>Customers may raise a grievance during business hours through the following channels:</p>
-          <ul className='list-disc list-inside space-y-1 mt-2'>
-            <li>Email: <a href='mailto:support@locoxo.com' className='underline hover:text-black'>support@locoxo.com</a></li>
-            <li>Phone / WhatsApp: <a href='tel:+919876543210' className='underline hover:text-black'>+91 9876543210</a></li>
+        <Section number='2' title='How to Raise a Grievance'>
+          <p>You can raise a grievance with us through the following channels:</p>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Email: <a href='mailto:locoxo.support@gmail.com' className='underline hover:text-black'>locoxo.support@gmail.com</a></li>
+            <li>Phone / WhatsApp: +91 88245 89682 (Available Monday to Saturday, 10:00 AM to 8:00 PM IST; Sunday closed)</li>
+            <li>Contact form on the Site</li>
           </ul>
-          <p className='mt-3'>When submitting a grievance, please include:</p>
-          <ul className='list-disc list-inside space-y-1 mt-2'>
-            <li>Your full name</li>
-            <li>Order Number / Order ID</li>
-            <li>Registered email address or phone number used at checkout</li>
-            <li>A clear description of the issue</li>
-            <li>Any relevant images, screenshots, or video proof, if applicable</li>
-            <li>Preferred resolution (for example, refund, replacement, or exchange)</li>
-          </ul>
+          <p>When raising a grievance, please provide your full name, registered email address and mobile number, Order ID (if applicable), a clear description of the issue, and any supporting documents or screenshots (e.g., payment receipt, product photos, chat screenshots). Providing complete information helps us resolve your issue faster.</p>
         </Section>
 
-        <Section number='5' title='Acknowledgement and Resolution Timeline'>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-2'>
-            <div className='bg-gray-50 border border-gray-200 p-4 text-center'>
-              <p className='text-2xl font-bold text-black mb-1'>48 hrs</p>
-              <p className='text-xs text-gray-500'>Acknowledgement of complaint</p>
-            </div>
-            <div className='bg-gray-50 border border-gray-200 p-4 text-center'>
-              <p className='text-2xl font-bold text-black mb-1'>5–7 days</p>
-              <p className='text-xs text-gray-500'>Resolution for routine cases</p>
-            </div>
-            <div className='bg-gray-50 border border-gray-200 p-4 text-center'>
-              <p className='text-2xl font-bold text-black mb-1'>1 month</p>
-              <p className='text-xs text-gray-500'>Complex cases requiring investigation</p>
-            </div>
-          </div>
-          <p className='mt-3'>
-            Where the matter requires detailed review, logistics verification, payment confirmation, or investigation, final redressal may take up to one month from the date of receipt of the complaint.
-          </p>
-        </Section>
-
-        <Section number='6' title='Grievance Officer'>
-          <p>
-            Locoxo Apparels has appointed a designated Grievance Officer to handle customer complaints and ensure compliance with the grievance-handling requirements of the Consumer Protection (E-Commerce) Rules, 2020.
-          </p>
-          <div className='bg-gray-50 border border-gray-200 p-5 mt-3 space-y-1'>
-            <p><span className='font-semibold'>Name:</span> Anamika Agarwal</p>
-            <p><span className='font-semibold'>Designation:</span> Grievance Redressal Officer, Locoxo Apparels</p>
-            <p><span className='font-semibold'>Phone / WhatsApp:</span> <a href='tel:+919876543210' className='underline hover:text-black'>+91 9876543210</a></p>
-            <p><span className='font-semibold'>Email:</span> <a href='mailto:support@locoxo.com' className='underline hover:text-black'>support@locoxo.com</a></p>
-            <p><span className='font-semibold'>Address:</span><br />
-              Building No./Flat No. 2400/67, Friends Colony, Street No. 2,<br />
-              Near Rohit Trading Company, Badi Haibowal,<br />
-              Ludhiana, Punjab 141001, India
-            </p>
+        <Section number='3' title='Grievance Officer'>
+          <p>In compliance with the Consumer Protection (E-Commerce) Rules, 2020 and other applicable laws, LOCOXO has appointed a Grievance Officer to handle customer complaints.</p>
+          <div className='bg-gray-50 border border-gray-200 p-4'>
+            <p className='font-semibold text-gray-800'>Grievance Officer Details</p>
+            <p>Name: Support Team, LOCOXO APPARELS</p>
+            <p>Designation: Grievance Officer</p>
+            <p>Email: <a href='mailto:locoxo.support@gmail.com' className='underline hover:text-black'>locoxo.support@gmail.com</a></p>
+            <p>Phone / WhatsApp: +91 88245 89682 (Monday to Saturday, 10:00 AM to 8:00 PM IST; Sunday closed)</p>
+            <p>Address: 2400/67, Friends Colony, Street No. 2, Badi Haibowal, Ludhiana, Punjab – 141001, India</p>
           </div>
         </Section>
 
-        <Section number='7' title='Return, Refund, and Cancellation Rules'>
-          <div className='space-y-4'>
-            <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Return Window</h3>
-              <p>Returns are accepted within 5 to 7 days after delivery, subject to eligibility and product condition.</p>
-            </div>
-            <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Cancellation Window</h3>
-              <p>Orders may be cancelled within 24 hours of placement, subject to dispatch status.</p>
-            </div>
-            <div className='bg-white border border-gray-200 p-4'>
-              <h3 className='font-semibold text-gray-800 mb-1'>Non-returnable Items</h3>
-              <p>Clearance sale products, customized products, and innerwear are generally not eligible for return or exchange unless the item delivered is defective, damaged, or materially different from the order.</p>
-            </div>
-          </div>
+        <Section number='4' title='Acknowledgement and Resolution Timelines'>
+          <h3 className='font-semibold text-gray-800'>4.1 Acknowledgement</h3>
+          <p>We will acknowledge receipt of your grievance within 24–48 hours on business days (Monday to Saturday, excluding public holidays), via email, SMS, or WhatsApp, depending on the channel you used.</p>
+          <h3 className='font-semibold text-gray-800'>4.2 Resolution</h3>
+          <p>We aim to resolve most standard grievances within 7–10 days from the date of acknowledgement. For more complex issues (e.g., those requiring investigation with logistics partners, payment gateways, or vendors), resolution may take up to 15 days. If additional time is required, we will inform you of the reason and the expected timeline.</p>
+          <h3 className='font-semibold text-gray-800'>4.3 Status Updates</h3>
+          <p>You may request a status update at any time by emailing locoxo.support@gmail.com with your Order ID and grievance reference (if any). Where feasible, we will provide periodic updates until the issue is resolved.</p>
         </Section>
 
-        <Section number='8' title='Refund Rule'>
+        <Section number='5' title='How We Handle Different Types of Grievances'>
+          <p>While each case is handled individually, the following general approach applies:</p>
           <ul className='list-disc list-inside space-y-2'>
-            <li>Approved refunds will be initiated within 5 to 7 business days after the return or cancellation request is reviewed and approved.</li>
-            <li>If the original payment method supports a direct refund, the amount may be credited back to the same payment method.</li>
-            <li>If a direct refund is not possible, or if the customer requests transfer to another account, the customer must share their UPI ID or bank account details (including name, account number, IFSC, and UPI ID, if applicable).</li>
-            <li>After the refund is approved, the amount will be transferred to the provided UPI ID or bank account within 5 to 7 business days.</li>
-            <li>The customer is responsible for sharing correct payment details. Locoxo Apparels will not be liable for delays or failed transfers caused by incorrect or mistyped UPI IDs or bank details.</li>
+            <li><span className='font-semibold'>Order and Delivery Issues:</span> We verify order details, tracking information, and delivery status with our logistics partners and offer an appropriate remedy (re-dispatch, replacement, or refund).</li>
+            <li><span className='font-semibold'>Product Quality Issues:</span> For genuine manufacturing defects or damage in transit, we offer repair, replacement, or refund as per our Return &amp; Refund Policy. Colour variations due to lighting, camera, and display settings are not considered manufacturing defects.</li>
+            <li><span className='font-semibold'>Refund and Return Disputes:</span> We review the status of your return, the condition of the product (if received), and applicable policy terms. Approved refunds are processed through the original payment method within the timeline stated in our Return &amp; Refund Policy.</li>
+            <li><span className='font-semibold'>Payment Issues:</span> For failed transactions, double charges, or refund delays, we coordinate with our payment gateway (Cashfree Payments) and your bank if needed, sharing transaction IDs and UTR numbers where applicable.</li>
+            <li><span className='font-semibold'>Account and Privacy Issues:</span> We verify your identity and take appropriate steps (password reset, securing the account, reviewing data requests). Data access, correction, deletion, or consent withdrawal requests are handled per our Privacy Policy.</li>
+            <li><span className='font-semibold'>Website, Pricing, and Coupon Issues:</span> We verify the applicable terms and our records, and in case of genuine errors on our side, offer an appropriate remedy (price adjustment, coupon credit, or order cancellation with refund).</li>
           </ul>
         </Section>
 
-        <Section number='9' title='Customer Responsibilities'>
-          <p>To help ensure quick and fair grievance handling, customers should:</p>
-          <ul className='list-disc list-inside space-y-1 mt-2'>
-            <li>Provide complete and correct order details.</li>
-            <li>Raise the complaint within the applicable return or support period.</li>
-            <li>Share evidence where required for damaged, incorrect, or defective items.</li>
-            <li>Cooperate with any verification, pickup, return, or payment confirmation process.</li>
-          </ul>
+        <Section number='6' title='Escalation Within LOCOXO'>
+          <p>If you are not satisfied with the initial response or resolution, you may escalate your grievance by emailing locoxo.support@gmail.com with the subject line: "Escalation – [Your Name] – [Order ID]". Include your original complaint details, previous communication references (emails, ticket numbers, chat transcripts), and the reason you are not satisfied.</p>
+          <p>We will review your escalation within 5 business days, assign it to a senior member of our team for re-evaluation, and communicate the final decision or further steps required.</p>
         </Section>
 
-        <Section number='10' title='Escalation and External Remedies'>
+        <Section number='7' title='External Recourse'>
           <p>
-            If a customer is not satisfied with the response provided by the support team, the matter may be escalated to the Grievance Officer using the details listed in Section 6. Customers may also pursue separate remedies through recognized consumer-protection channels, including the National Consumer Helpline, where applicable.
+            If your grievance is not resolved to your satisfaction even after following the above process, you may have the
+            right to approach the appropriate Consumer Disputes Redressal Commission under the Consumer Protection Act, 2019,
+            depending on the value of your claim and your location. You may also refer to our Terms of Use for details on
+            governing law and jurisdiction.
           </p>
         </Section>
 
-        <Section number='11' title='Policy Updates'>
+        <Section number='8' title='Record Keeping'>
+          <p>We maintain internal records of grievances received, actions taken, and resolutions provided, for quality improvement and training, compliance with applicable laws and regulatory requirements, and handling any future disputes or references. These records are maintained in line with our data retention practices described in our Privacy Policy.</p>
+        </Section>
+
+        <Section number='9' title='Changes to This Grievance Policy'>
           <p>
-            Locoxo Apparels reserves the right to amend or update this Policy from time to time. The latest version of this Policy will be published on www.locoxo.com and will become effective from the date of publication.
+            We may update this Grievance Policy from time to time to reflect changes in our operations, feedback, or legal
+            requirements. The "Last updated" date at the top will be revised. Significant changes will be notified via email,
+            Site banner, or other appropriate means. Continued use of the Site and our services after changes constitutes
+            acceptance of the updated policy.
           </p>
+        </Section>
+
+        <Section number='10' title='Contact'>
+          <p>For any questions regarding this Grievance Policy, you can contact us at:</p>
+          <div className='bg-gray-50 border border-gray-200 p-4 mt-2'>
+            <p className='font-semibold text-gray-800'>LOCOXO APPARELS</p>
+            <p>Email: <a href='mailto:locoxo.support@gmail.com' className='underline hover:text-black'>locoxo.support@gmail.com</a> (monitored daily)</p>
+            <p>Phone / WhatsApp: +91 88245 89682 (Monday to Saturday, 10:00 AM to 8:00 PM IST; Sunday closed)</p>
+            <p>Address: 2400/67, Friends Colony, Street No. 2, Badi Haibowal, Ludhiana, Punjab – 141001, India</p>
+          </div>
         </Section>
       </div>
     </div>

@@ -11,9 +11,9 @@ const RelatedProducts = ({category,subCategory}) => {
     useEffect(()=>{
 
         if (products.length > 0) {
-            
+
             let productsCopy = products.slice();
-            
+
             productsCopy = productsCopy.filter((item) => {
                 const itemCategory = typeof item.category === 'object' ? item.category?.name : item.category;
                 return category === itemCategory;
@@ -22,7 +22,7 @@ const RelatedProducts = ({category,subCategory}) => {
 
             setRelated(productsCopy.slice(0,5));
         }
-        
+
     },[products])
 
   return (

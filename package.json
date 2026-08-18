@@ -10,8 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@firebase/auth": "^1.13.4",
     "axios": "^1.7.4",
-    "firebase": "^12.14.0",
+    "firebase": "^12.17.1",
     "lucide-react": "^1.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

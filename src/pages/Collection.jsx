@@ -98,7 +98,7 @@ const Collection = () => {
   return (
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-10'>
       <div className='flex flex-col lg:flex-row gap-8'>
-      
+
         {/* Filter Sidebar */}
         <div className='lg:w-64 flex-shrink-0'>
           <div className='flex items-center justify-between mb-6 lg:mb-8'>
@@ -109,7 +109,7 @@ const Collection = () => {
               </svg>
             </button>
           </div>
-          
+
           <div className={`space-y-6 ${showFilter ? 'block' : 'hidden'} lg:block`}>
             {/* Category Filter */}
             <div className='border-b border-gray-200 pb-6'>
@@ -129,7 +129,7 @@ const Collection = () => {
                 </label>
               </div>
             </div>
-            
+
             {/* Type Filter */}
             <div className='border-b border-gray-200 pb-6'>
               <h4 className='text-sm font-bold tracking-wide mb-4'>TYPE</h4>
@@ -159,11 +159,11 @@ const Collection = () => {
               <h1 className='text-3xl font-bold tracking-tight'>ALL <span className='font-light italic'>COLLECTIONS</span></h1>
               <p className='text-sm text-gray-600 mt-2'>{filterProducts.length} Products</p>
             </div>
-            
+
             {/* Sort Dropdown */}
             <div className='relative'>
-              <select 
-                onChange={(e)=>setSortType(e.target.value)} 
+              <select
+                onChange={(e)=>setSortType(e.target.value)}
                 className='appearance-none bg-white border border-gray-300 px-4 py-2.5 pr-10 text-sm font-medium focus:outline-none focus:border-black cursor-pointer'
               >
                 <option value="relavent">Sort by: Relevant</option>

@@ -31,7 +31,9 @@ const Collection = () => {
   const applyFilter = () => {
     let copy = products.slice();
     if (showSearch && search) copy = copy.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
-    if (category.length) copy = copy.filter((i) => category.includes(catName(i)))
+    // Match a chosen category at ANY level (main / sub / child) so the nested
+    // navbar dropdown links filter correctly.
+    if (category.length) copy = copy.filter((i) => category.includes(catName(i)) || category.includes(i.subCategory) || category.includes(i.childCategory))
     if (subCategory.length) copy = copy.filter((i) => subCategory.includes(i.subCategory))
     if (sortType === 'low-high') copy.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price))
     if (sortType === 'high-low') copy.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price))

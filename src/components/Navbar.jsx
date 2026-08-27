@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from 'react'
 import {assets} from '../assets/assets'
 import { Link, NavLink } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
+import CategoryNav from './CategoryNav';
 import { toast } from 'react-toastify';
 import useGoogleMaps from '../hooks/useGoogleMaps';
 import { fetchCitySuggestions, getPlaceDetails, reverseGeocode, getCurrentPosition } from '../utils/locationService';
@@ -307,23 +308,10 @@ const Navbar = () => {
       </div>
       </div>
 
-      {/* Category Navigation Bar */}
-      <div className='hidden lg:block bg-locoxo-secondary text-white'>
+      {/* Category Navigation Bar — nested hover dropdowns (category → sub → child) */}
+      <div className='hidden lg:block bg-locoxo-secondary text-white relative z-40'>
         <div className='max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-16'>
-          <div className='flex items-center justify-center gap-8 py-3 overflow-x-auto scrollbar-hide'>
-            <NavLink to='/collection' className='text-sm font-semibold text-white hover:text-locoxo-orange transition-colors whitespace-nowrap'>
-              Discover
-            </NavLink>
-            {categories.slice(0, 8).map((category) => (
-              <NavLink
-                key={category._id}
-                to={`/collection?category=${category.name}`}
-                className='text-sm font-semibold text-white hover:text-locoxo-orange transition-colors whitespace-nowrap'
-              >
-                {category.name}
-              </NavLink>
-            ))}
-          </div>
+          <CategoryNav categories={categories} />
         </div>
       </div>
 

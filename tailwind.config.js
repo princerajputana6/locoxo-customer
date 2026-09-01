@@ -7,14 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Premium monochrome theme — white surfaces, black ink.
         locoxo: {
-          header: '#062B52',        // header / footer (navy)
-          blue: '#0E4F86',          // hero / primary brand (royal blue)
-          secondary: '#1B5F97',     // medium blue
-          orange: '#F59A23',        // buttons & highlights / logo orange
-          'orange-dark': '#E57E00', // button hover
-          bg: '#F5F7FA',            // section background
-          text: '#333333',          // body text
+          header: '#000000',        // header / footer (black)
+          blue: '#0A0A0A',          // hero / dark surfaces (near-black)
+          secondary: '#111111',     // category bar (near-black)
+          orange: '#111111',        // buttons & accents (black)
+          'orange-dark': '#2B2B2B', // button hover
+          bg: '#FFFFFF',            // section background (white)
+          text: '#1A1A1A',          // body text (soft black)
         },
       },
       fontFamily: {

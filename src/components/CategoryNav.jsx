@@ -15,13 +15,13 @@ const CategoryNav = ({ categories = [] }) => {
 
   return (
     <div className='flex items-center justify-center gap-8 py-3 overflow-visible'>
-      <NavLink to='/collection' className='text-sm font-semibold text-white hover:text-locoxo-orange transition-colors whitespace-nowrap'>Discover</NavLink>
+      <NavLink to='/collection' className='text-sm font-semibold text-white/80 hover:text-white transition-colors whitespace-nowrap'>Discover</NavLink>
       {roots.slice(0, 8).map((root) => {
         const subs = kidsOf(root._id)
         const open = openRoot === root._id
         return (
           <div key={root._id} className='relative' onMouseEnter={() => setOpenRoot(root._id)} onMouseLeave={() => setOpenRoot(null)}>
-            <NavLink to={`/collection?category=${encodeURIComponent(root.name)}`} className='flex items-center gap-1 text-sm font-semibold text-white hover:text-locoxo-orange transition-colors whitespace-nowrap'>
+            <NavLink to={`/collection?category=${encodeURIComponent(root.name)}`} className='flex items-center gap-1 text-sm font-semibold text-white/80 hover:text-white transition-colors whitespace-nowrap'>
               {root.name}{subs.length > 0 && <Down />}
             </NavLink>
             {subs.length > 0 && open && (

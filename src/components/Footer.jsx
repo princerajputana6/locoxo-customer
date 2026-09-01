@@ -33,10 +33,10 @@ const Footer = () => {
           <div>
             <h3 className='text-sm font-bold tracking-wide mb-6'>SHOP</h3>
             <ul className='space-y-3 text-sm'>
-              <li><Link to='/collection' className='text-gray-400 hover:text-locoxo-orange transition-colors'>All Products</Link></li>
-              <li><Link to='/collection' className='text-gray-400 hover:text-locoxo-orange transition-colors'>New Arrivals</Link></li>
-              <li><Link to='/collection' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Best Sellers</Link></li>
-              <li><Link to='/collection' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Sale</Link></li>
+              <li><Link to='/collection' className='text-gray-400 hover:text-white transition-colors'>All Products</Link></li>
+              <li><Link to='/collection' className='text-gray-400 hover:text-white transition-colors'>New Arrivals</Link></li>
+              <li><Link to='/collection' className='text-gray-400 hover:text-white transition-colors'>Best Sellers</Link></li>
+              <li><Link to='/collection' className='text-gray-400 hover:text-white transition-colors'>Sale</Link></li>
             </ul>
           </div>
 
@@ -44,15 +44,15 @@ const Footer = () => {
           <div>
             <h3 className='text-sm font-bold tracking-wide mb-6'>COMPANY & POLICIES</h3>
             <ul className='space-y-3 text-sm'>
-              <li><Link to='/about' className='text-gray-400 hover:text-locoxo-orange transition-colors font-semibold'>About Us</Link></li>
-              <li><Link to='/contact' className='text-gray-400 hover:text-locoxo-orange transition-colors font-semibold'>Contact Us</Link></li>
-              <li><Link to='/faq' className='text-gray-400 hover:text-locoxo-orange transition-colors'>FAQ</Link></li>
-              <li><Link to='/terms' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Terms & Conditions</Link></li>
-              <li><Link to='/return-policy' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Return & Refund Policy</Link></li>
-              <li><Link to='/cancellation-policy' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Cancellation Policy</Link></li>
-              <li><Link to='/privacy-policy' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Privacy Policy</Link></li>
-              <li><Link to='/cookies-policy' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Cookies Policy</Link></li>
-              <li><Link to='/grievance-policy' className='text-gray-400 hover:text-locoxo-orange transition-colors'>Grievance Policy</Link></li>
+              <li><Link to='/about' className='text-gray-400 hover:text-white transition-colors font-semibold'>About Us</Link></li>
+              <li><Link to='/contact' className='text-gray-400 hover:text-white transition-colors font-semibold'>Contact Us</Link></li>
+              <li><Link to='/faq' className='text-gray-400 hover:text-white transition-colors'>FAQ</Link></li>
+              <li><Link to='/terms' className='text-gray-400 hover:text-white transition-colors'>Terms & Conditions</Link></li>
+              <li><Link to='/return-policy' className='text-gray-400 hover:text-white transition-colors'>Return & Refund Policy</Link></li>
+              <li><Link to='/cancellation-policy' className='text-gray-400 hover:text-white transition-colors'>Cancellation Policy</Link></li>
+              <li><Link to='/privacy-policy' className='text-gray-400 hover:text-white transition-colors'>Privacy Policy</Link></li>
+              <li><Link to='/cookies-policy' className='text-gray-400 hover:text-white transition-colors'>Cookies Policy</Link></li>
+              <li><Link to='/grievance-policy' className='text-gray-400 hover:text-white transition-colors'>Grievance Policy</Link></li>
             </ul>
           </div>
 
@@ -90,11 +90,11 @@ const Footer = () => {
           <div className='flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400'>
             <p>© 2026 Locoxo. All rights reserved.</p>
             <div className='flex flex-wrap gap-x-6 gap-y-2 justify-center'>
-              <Link to='/terms' className='hover:text-locoxo-orange transition-colors'>Terms & Conditions</Link>
-              <Link to='/privacy-policy' className='hover:text-locoxo-orange transition-colors'>Privacy Policy</Link>
-              <Link to='/return-policy' className='hover:text-locoxo-orange transition-colors'>Return & Refund</Link>
-              <Link to='/cookies-policy' className='hover:text-locoxo-orange transition-colors'>Cookies Policy</Link>
-              <Link to='/grievance-policy' className='hover:text-locoxo-orange transition-colors'>Grievance Policy</Link>
+              <Link to='/terms' className='hover:text-white transition-colors'>Terms & Conditions</Link>
+              <Link to='/privacy-policy' className='hover:text-white transition-colors'>Privacy Policy</Link>
+              <Link to='/return-policy' className='hover:text-white transition-colors'>Return & Refund</Link>
+              <Link to='/cookies-policy' className='hover:text-white transition-colors'>Cookies Policy</Link>
+              <Link to='/grievance-policy' className='hover:text-white transition-colors'>Grievance Policy</Link>
             </div>
           </div>
         </div>

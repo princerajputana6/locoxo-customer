@@ -22,7 +22,7 @@ const CountdownTimer = ({ endDate, className = '' }) => {
 
   const Cell = ({ v, l }) => (
     <div className='flex flex-col items-center'>
-      <span className='min-w-[2.5rem] px-2 py-1 rounded-lg bg-white/95 text-[#0E4F86] text-lg font-bold tabular-nums shadow'>{pad(v)}</span>
+      <span className='min-w-[2.5rem] px-2 py-1 rounded-lg bg-white/95 text-black text-lg font-bold tabular-nums shadow'>{pad(v)}</span>
       <span className='mt-1 text-[10px] uppercase tracking-widest text-white/90'>{l}</span>
     </div>
   )

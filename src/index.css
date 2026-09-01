@@ -30,7 +30,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 @media (max-width:640px) {
     a.active{
-        background-color: #062B52;
+        background-color: #000000;
         color: #ffffff;
     }
 }

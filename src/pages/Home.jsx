@@ -4,6 +4,7 @@ import axios from 'axios'
 import Hero from '../components/Hero'
 import OurPolicy from '../components/OurPolicy'
 import DynamicSection from '../components/DynamicSection'
+import HeroCategories from '../components/HeroCategories'
 import CountdownTimer from '../components/CountdownTimer'
 
 // The storefront home is fully data-driven:
@@ -30,6 +31,10 @@ const Home = () => {
   const heroBanners = banners.filter((b) => b.bannerType === 'homepage_slider').sort((a, b) => a.displayOrder - b.displayOrder)
   // Everything else becomes a promo strip interleaved between sections.
   const promoBanners = banners.filter((b) => b.bannerType !== 'homepage_slider').sort((a, b) => a.displayOrder - b.displayOrder)
+  // A merchandising section with layout 'hero' becomes THE hero; it's the only
+  // full-height block and is excluded from the normal (contained) sections.
+  const heroSection = sections.find((s) => s.layout === 'hero')
+  const normalSections = sections.filter((s) => s.layout !== 'hero')
 
   useEffect(() => {
     if (heroBanners.length > 1) {
@@ -61,8 +66,10 @@ const Home = () => {
 
   return (
     <div>
-      {/* Hero — banner slider if the admin uploaded slider banners, else category hero */}
-      {heroBanners.length > 0 ? (
+      {/* Hero priority: merchandising hero section → banner slider → category hero */}
+      {heroSection ? (
+        <HeroCategories section={heroSection} />
+      ) : heroBanners.length > 0 ? (
         <div className='relative w-full h-[90vh] overflow-hidden bg-locoxo-blue'>
           {heroBanners.map((b, i) => (
             <div key={b._id} onClick={() => goBanner(b)} className={`absolute inset-0 transition-opacity duration-700 ${i === heroIdx ? 'opacity-100' : 'opacity-0 pointer-events-none'} ${(b.buttonLink || b.link) ? 'cursor-pointer' : ''}`}>
@@ -89,8 +96,8 @@ const Home = () => {
         <Hero />
       )}
 
-      {/* Dynamic merchandising sections, with promo banners interleaved */}
-      {sections.map((s, i) => (
+      {/* Dynamic merchandising sections (contained), with promo banners interleaved */}
+      {normalSections.map((s, i) => (
         <React.Fragment key={s._id || i}>
           <DynamicSection section={s} />
           {promoBanners[i] && <OfferBanner b={promoBanners[i]} />}
@@ -98,7 +105,7 @@ const Home = () => {
       ))}
 
       {/* Any promo banners left over after the sections run out */}
-      {promoBanners.slice(sections.length).map((b) => <OfferBanner key={b._id} b={b} />)}
+      {promoBanners.slice(normalSections.length).map((b) => <OfferBanner key={b._id} b={b} />)}
 
       {/* Friendly empty state until the admin publishes sections */}
       {sections.length === 0 && promoBanners.length === 0 && heroBanners.length === 0 && (

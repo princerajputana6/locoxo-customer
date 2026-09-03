@@ -13,6 +13,7 @@ const Product = () => {
   const { products, currency, addToCart, navigate } = useContext(ShopContext);
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState('')
+  const [colourIdx, setColourIdx] = useState(0)
   const [size, setSize] = useState('')
   const [pincode, setPincode] = useState('')
   const [deliveryInfo, setDeliveryInfo] = useState(null)
@@ -27,7 +28,10 @@ const Product = () => {
     products.map((item) => {
       if (item._id === productId) {
         setProductData(item)
-        setImage(item.image[0])
+        setColourIdx(0)
+        const firstImgs = (item.colours && item.colours[0]?.images?.length) ? item.colours[0].images : item.image
+        setImage(firstImgs?.[0] || '')
+        setSize('')
         return null;
       }
     })
@@ -59,20 +63,34 @@ const Product = () => {
     }
   };
 
-  // MRP vs selling price. Bold price = what the customer pays (selling), struck = MRP.
-  const mrp = Number(productData?.price) || 0
-  const selling = productData?.discountPrice ? Number(productData.discountPrice) : mrp
+  // Colour-wise data: the selected colour drives images, sizes and pricing.
+  const colours = (productData?.colours || []).filter((c) => c && (c.color || (c.images && c.images.length)))
+  const activeColour = colours[colourIdx] || null
+  const activeImages = (activeColour?.images?.length ? activeColour.images : (productData?.image || [])).filter(Boolean)
+
+  // MRP vs selling price (per colour when available). Bold = selling, struck = MRP.
+  const mrp = Number(activeColour?.mrp) || Number(productData?.price) || 0
+  const selling = activeColour?.sellingPrice ? Number(activeColour.sellingPrice) : (productData?.discountPrice ? Number(productData.discountPrice) : mrp)
   const originalPrice = mrp
   const discount = mrp > selling ? Math.round(((mrp - selling) / mrp) * 100) : 0
 
-  // Available sizes — from the product's sizes[], else its colours[].sizes, else variants[].size.
+  // Available sizes — the selected colour's sizes, else product sizes/variants.
   const availableSizes = React.useMemo(() => {
     if (!productData) return []
+    if (activeColour?.sizes?.length) return activeColour.sizes
     if (productData.sizes?.length) return productData.sizes
     const fromColours = (productData.colours || []).flatMap((c) => c.sizes || [])
     if (fromColours.length) return [...new Set(fromColours)]
     return [...new Set((productData.variants || []).map((v) => v.size).filter(Boolean))]
-  }, [productData])
+  }, [productData, activeColour])
+
+  // Switch colour: reset the gallery + size to the new colour.
+  const pickColour = (idx) => {
+    setColourIdx(idx)
+    const imgs = colours[idx]?.images?.length ? colours[idx].images : (productData?.image || [])
+    setImage(imgs?.[0] || '')
+    setSize('')
+  }
 
   const fetchReviews = async () => {
     if (!productData) return;
@@ -149,7 +167,7 @@ const Product = () => {
               <div className='flex flex-col-reverse lg:flex-row gap-4'>
                 {/* Thumbnails */}
                 <div className='flex lg:flex-col overflow-x-auto lg:overflow-y-auto gap-3 lg:w-20'>
-                  {productData.image.map((item, index) => (
+                  {activeImages.map((item, index) => (
                     <img 
                       onClick={() => setImage(item)} 
                       src={item} 
@@ -161,7 +179,7 @@ const Product = () => {
                     />
                   ))}
                   {/* Scroll indicator */}
-                  {productData.image.length > 4 && (
+                  {activeImages.length > 4 && (
                     <div className='hidden lg:flex items-center justify-center w-full h-8 bg-gray-100 rounded-lg'>
                       <svg className='w-5 h-5 text-gray-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
@@ -227,12 +245,35 @@ const Product = () => {
               </div>
             )}
 
-            {/* Color/Image Selection - only show if multiple images */}
-            {productData.image && productData.image.length > 1 && (
+            {/* Colour Selection — swatches from the product's colours */}
+            {colours.length > 1 && (
+              <div className='mb-6'>
+                <p className='font-semibold mb-3'>Colour: <span className='font-normal text-gray-600'>{activeColour?.color}</span></p>
+                <div className='flex flex-wrap gap-3'>
+                  {colours.map((c, idx) => {
+                    const swatch = /^#/.test(c.colorCode || '') ? c.colorCode : (c.colorCode || '#e5e7eb')
+                    const thumb = c.images?.[0]
+                    return (
+                      <button key={idx} onClick={() => pickColour(idx)} title={c.color}
+                        className={`relative w-14 h-16 rounded-lg overflow-hidden border-2 transition-all ${idx === colourIdx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}>
+                        {thumb ? <img src={thumb} alt={c.color} className='w-full h-full object-cover' />
+                          : <span className='block w-full h-full' style={{ background: swatch }} />}
+                        {idx === colourIdx && (
+                          <span className='absolute bottom-0 inset-x-0 bg-black/70 text-white text-[9px] py-0.5 text-center truncate'>{c.color}</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Image thumbnails for the selected colour */}
+            {activeImages.length > 1 && (
               <div className='mb-6'>
                 <p className='font-semibold mb-3'>Select Image</p>
                 <div className='flex gap-3'>
-                  {productData.image.slice(0, 4).map((img, idx) => (
+                  {activeImages.slice(0, 4).map((img, idx) => (
                     <div 
                       key={idx}
                       onClick={() => setImage(img)}

@@ -59,10 +59,20 @@ const Product = () => {
     }
   };
 
-  const originalPrice = productData?.discountPrice ? productData.price : Math.round(productData?.price * 1.5) || 0;
-  const discount = productData?.discountPrice 
-    ? Math.round(((originalPrice - productData.discountPrice) / originalPrice) * 100)
-    : Math.round(((originalPrice - (productData?.price || 0)) / originalPrice) * 100);
+  // MRP vs selling price. Bold price = what the customer pays (selling), struck = MRP.
+  const mrp = Number(productData?.price) || 0
+  const selling = productData?.discountPrice ? Number(productData.discountPrice) : mrp
+  const originalPrice = mrp
+  const discount = mrp > selling ? Math.round(((mrp - selling) / mrp) * 100) : 0
+
+  // Available sizes — from the product's sizes[], else its colours[].sizes, else variants[].size.
+  const availableSizes = React.useMemo(() => {
+    if (!productData) return []
+    if (productData.sizes?.length) return productData.sizes
+    const fromColours = (productData.colours || []).flatMap((c) => c.sizes || [])
+    if (fromColours.length) return [...new Set(fromColours)]
+    return [...new Set((productData.variants || []).map((v) => v.size).filter(Boolean))]
+  }, [productData])
 
   const fetchReviews = async () => {
     if (!productData) return;
@@ -190,9 +200,9 @@ const Product = () => {
             
             {/* Price Section */}
             <div className='flex items-center gap-3 mb-2'>
-              <span className='text-2xl font-bold'>₹{productData.price}</span>
-              <span className='text-lg text-gray-400 line-through'>₹{originalPrice}</span>
-              <span className='text-green-600 font-semibold'>{discount}% OFF</span>
+              <span className='text-2xl font-bold'>₹{selling}</span>
+              {discount > 0 && <span className='text-lg text-gray-400 line-through'>₹{mrp}</span>}
+              {discount > 0 && <span className='text-green-600 font-semibold'>{discount}% OFF</span>}
               <span className='text-xs text-gray-500'>Inclusive of all taxes</span>
             </div>
 
@@ -243,7 +253,7 @@ const Product = () => {
             )}
 
             {/* Size Selection */}
-            {productData.sizes && productData.sizes.length > 0 && (
+            {availableSizes.length > 0 && (
               <div className='mb-6'>
                 <div className='flex items-center justify-between mb-3'>
                   <p className='font-semibold'>Select Size</p>
@@ -255,14 +265,14 @@ const Product = () => {
                   </button>
                 </div>
                 <div className='flex flex-wrap gap-3'>
-                  {productData.sizes.map((item, index) => (
-                    <button 
-                      onClick={() => setSize(item)} 
+                  {availableSizes.map((item, index) => (
+                    <button
+                      onClick={() => setSize(item)}
                       className={`min-w-[50px] px-4 py-2 border rounded-md font-medium text-sm transition-all ${
-                        item === size 
-                          ? 'border-black bg-locoxo-orange text-white' 
+                        item === size
+                          ? 'border-black bg-black text-white'
                           : 'border-gray-300 hover:border-black'
-                      }`} 
+                      }`}
                       key={index}
                     >
                       {item}
@@ -276,12 +286,12 @@ const Product = () => {
             <div className='flex gap-3 mb-6'>
               <button 
                 onClick={() => {
-                  if (!size && productData.sizes && productData.sizes.length > 0) {
+                  if (!size && availableSizes.length > 0) {
                     toast.error('Please select a size');
                     return;
                   }
-                  addToCart(productData._id, size);
-                }} 
+                  addToCart(productData._id, size || 'Free');
+                }}
                 className='flex-1 bg-yellow-400 hover:bg-yellow-500 text-black py-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors'
               >
                 <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

@@ -63,11 +63,19 @@ const DynamicSection = ({ section }) => {
   )
 
   const ComboCard = ({ c }) => {
-    const imgs = (c.products || []).map((p) => (Array.isArray(p.image) ? p.image[0] : p.image)).filter(Boolean)
+    const items = (c.products || []).filter(Boolean)
+    const imgs = items.map((p) => (Array.isArray(p.image) ? p.image[0] : p.image)).filter(Boolean)
     const cover = c.image || imgs[0] || 'https://placehold.co/600x800?text=Combo'
+    const firstId = items[0]?._id
+    const sizeOf = (p) => (p.variants && p.variants[0]?.size) || (p.sizes && p.sizes[0]) || 'Free'
+    const addCombo = () => {
+      if (!items.length) return
+      items.forEach((p) => addToCart(p._id, sizeOf(p)))
+      toast.success(`${c.name} added to cart (${items.length} items)`)
+    }
     return (
       <div style={itemStyle} className={`group block ${slider ? 'snap-start' : ''}`}>
-        <div className='relative overflow-hidden rounded-xl bg-gray-100 aspect-[3/4]'>
+        <Link to={firstId ? `/product/${firstId}` : '#'} className='block relative overflow-hidden rounded-xl bg-gray-100 aspect-[3/4]'>
           <img src={cover} alt={c.name} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' />
           <span className='absolute top-3 left-3 bg-black text-white text-[11px] font-bold px-2 py-1 rounded'>COMBO</span>
           {imgs.length > 1 && (
@@ -75,13 +83,22 @@ const DynamicSection = ({ section }) => {
               {imgs.slice(0, 4).map((s, i) => <img key={i} src={s} alt='' className='w-8 h-8 rounded object-cover border-2 border-white' />)}
             </div>
           )}
-        </div>
+        </Link>
         <h3 className='mt-3 text-sm font-medium text-gray-900 line-clamp-2'>{c.name}</h3>
         <div className='flex items-center gap-2'>
           {c.price != null && <p className='text-base font-bold text-black'>{currency}{c.price}</p>}
           {c.mrp ? <p className='text-xs text-gray-400 line-through'>{currency}{c.mrp}</p> : null}
-          <span className='text-[11px] text-gray-500'>· {(c.products || []).length} items</span>
+          <span className='text-[11px] text-gray-500'>· {items.length} items</span>
         </div>
+        {/* Shop the combo — its products, each linking to its own page */}
+        {items.length > 0 && (
+          <div className='mt-2 flex flex-wrap gap-1.5'>
+            {items.map((p) => (
+              <Link key={p._id} to={`/product/${p._id}`} className='text-[11px] px-2 py-0.5 rounded-full border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-colors'>{p.name?.slice(0, 18)}</Link>
+            ))}
+          </div>
+        )}
+        <button onClick={addCombo} className='mt-3 w-full bg-black text-white text-sm font-semibold py-2.5 rounded hover:bg-gray-800 transition-colors'>Add Combo to Cart</button>
       </div>
     )
   }

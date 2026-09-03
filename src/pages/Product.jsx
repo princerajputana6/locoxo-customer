@@ -7,6 +7,43 @@ import AISuggestions from '../components/AISuggestions';
 import ProductItem from '../components/ProductItem';
 import { toast } from 'react-toastify';
 
+// Nearest-name lookup so a hex colour (e.g. "#FFFFFF") reads as "White" for shoppers.
+const NAMED_COLOURS = [
+  ['Black', '#000000'], ['White', '#FFFFFF'], ['Off White', '#FAF9F6'], ['Cream', '#FFFDD0'],
+  ['Beige', '#F5F5DC'], ['Red', '#FF0000'], ['Maroon', '#800000'], ['Crimson', '#DC143C'],
+  ['Pink', '#FFC0CB'], ['Hot Pink', '#FF69B4'], ['Orange', '#FFA500'], ['Rust', '#B7410E'],
+  ['Yellow', '#FFFF00'], ['Mustard', '#E1AD01'], ['Gold', '#FFD700'], ['Brown', '#8B4513'],
+  ['Tan', '#D2B48C'], ['Khaki', '#C3B091'], ['Olive', '#808000'], ['Green', '#008000'],
+  ['Lime', '#7CFC00'], ['Mint', '#98FF98'], ['Teal', '#008080'], ['Cyan', '#00FFFF'],
+  ['Sky Blue', '#87CEEB'], ['Blue', '#0000FF'], ['Navy', '#000080'], ['Royal Blue', '#4169E1'],
+  ['Purple', '#800080'], ['Violet', '#8F00FF'], ['Lavender', '#E6E6FA'], ['Grey', '#808080'],
+  ['Light Grey', '#D3D3D3'], ['Dark Grey', '#404040'], ['Silver', '#C0C0C0'], ['Charcoal', '#36454F'],
+]
+
+const hexToName = (hex) => {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '').trim())
+  if (!m) return null
+  const int = parseInt(m[1], 16)
+  const r = (int >> 16) & 255, g = (int >> 8) & 255, b = int & 255
+  let best = null, bestD = Infinity
+  for (const [name, h] of NAMED_COLOURS) {
+    const v = parseInt(h.slice(1), 16)
+    const dr = r - ((v >> 16) & 255), dg = g - ((v >> 8) & 255), db = b - (v & 255)
+    const d = dr * dr + dg * dg + db * db
+    if (d < bestD) { bestD = d; best = name }
+  }
+  return best
+}
+
+// Show a friendly colour name; only convert when the stored value is actually a hex code.
+const colourLabel = (c) => {
+  if (!c) return ''
+  const raw = String(c.color || '').trim()
+  const isHex = /^#[0-9a-f]{3,8}$/i.test(raw) || /^[0-9a-f]{6}$/i.test(raw)
+  if (raw && !isHex) return raw
+  return hexToName(raw) || hexToName(c.colorCode) || raw || 'Colour'
+}
+
 const Product = () => {
 
   const { productId } = useParams();
@@ -166,27 +203,19 @@ const Product = () => {
           <div className='lg:w-[55%]'>
             <div className='lg:sticky lg:top-24'>
               <div className='flex flex-col-reverse lg:flex-row gap-4'>
-                {/* Thumbnails */}
-                <div className='flex lg:flex-col overflow-x-auto lg:overflow-y-auto gap-3 lg:w-20'>
+                {/* Thumbnails — scroll within a fixed track so many images never push the layout */}
+                <div className='flex lg:flex-col shrink-0 overflow-x-auto lg:overflow-y-auto gap-3 lg:w-20 lg:max-h-[560px] pr-1 thumb-scroll'>
                   {activeImages.map((item, index) => (
-                    <img 
-                      onClick={() => setImage(item)} 
-                      src={item} 
-                      key={index} 
-                      className={`w-16 h-20 lg:w-full lg:h-24 object-cover cursor-pointer rounded-lg border-2 transition-all ${
+                    <img
+                      onClick={() => setImage(item)}
+                      src={item}
+                      key={index}
+                      className={`w-16 h-20 lg:w-full lg:h-24 shrink-0 object-cover cursor-pointer rounded-lg border-2 transition-all ${
                         image === item ? 'border-black' : 'border-gray-200 hover:border-gray-400'
-                      }`} 
-                      alt="" 
+                      }`}
+                      alt=""
                     />
                   ))}
-                  {/* Scroll indicator */}
-                  {activeImages.length > 4 && (
-                    <div className='hidden lg:flex items-center justify-center w-full h-8 bg-gray-100 rounded-lg'>
-                      <svg className='w-5 h-5 text-gray-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
-                      </svg>
-                    </div>
-                  )}
                 </div>
 
                 {/* Main Image */}
@@ -211,11 +240,8 @@ const Product = () => {
 
           {/* Right Side - Product Info */}
           <div className='lg:w-[45%] pb-10'>
-            {/* Brand */}
-            <p className='text-lg font-semibold text-gray-800 mb-1'>{productData.brand || 'LOCOXO'}®</p>
-            
             {/* Product Name */}
-            <h1 className='text-xl text-gray-600 mb-4'>{productData.name}</h1>
+            <h1 className='text-3xl lg:text-4xl font-bold text-gray-900 mb-4'>{productData.name}</h1>
             
             {/* Price Section */}
             <div className='flex items-center gap-3 mb-2'>
@@ -249,18 +275,18 @@ const Product = () => {
             {/* Colour Selection — swatches from the product's colours */}
             {colours.length > 1 && (
               <div className='mb-6'>
-                <p className='font-semibold mb-3'>Colour: <span className='font-normal text-gray-600'>{activeColour?.color}</span></p>
+                <p className='font-semibold mb-3'>Colour: <span className='font-normal text-gray-600'>{colourLabel(activeColour)}</span></p>
                 <div className='flex flex-wrap gap-3'>
                   {colours.map((c, idx) => {
                     const swatch = /^#/.test(c.colorCode || '') ? c.colorCode : (c.colorCode || '#e5e7eb')
                     const thumb = c.images?.[0]
                     return (
-                      <button key={idx} onClick={() => pickColour(idx)} title={c.color}
+                      <button key={idx} onClick={() => pickColour(idx)} title={colourLabel(c)}
                         className={`relative w-14 h-16 rounded-lg overflow-hidden border-2 transition-all ${idx === colourIdx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}>
                         {thumb ? <img src={thumb} alt={c.color} className='w-full h-full object-cover' />
                           : <span className='block w-full h-full' style={{ background: swatch }} />}
                         {idx === colourIdx && (
-                          <span className='absolute bottom-0 inset-x-0 bg-black/70 text-white text-[9px] py-0.5 text-center truncate'>{c.color}</span>
+                          <span className='absolute bottom-0 inset-x-0 bg-black/70 text-white text-[9px] py-0.5 text-center truncate'>{colourLabel(c)}</span>
                         )}
                       </button>
                     )
@@ -423,7 +449,7 @@ const Product = () => {
                   {activeColour?.color && (
                     <div className='border-b border-gray-100 pb-3'>
                       <p className='text-xs text-gray-500 mb-1'>Colour</p>
-                      <p className='font-medium'>{activeColour.color}</p>
+                      <p className='font-medium'>{colourLabel(activeColour)}</p>
                     </div>
                   )}
                   {productData.brand && (

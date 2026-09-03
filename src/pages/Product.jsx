@@ -15,6 +15,7 @@ const Product = () => {
   const [image, setImage] = useState('')
   const [colourIdx, setColourIdx] = useState(0)
   const [size, setSize] = useState('')
+  const [showSizeChart, setShowSizeChart] = useState(false)
   const [pincode, setPincode] = useState('')
   const [deliveryInfo, setDeliveryInfo] = useState(null)
   const [activeTab, setActiveTab] = useState('product')
@@ -298,12 +299,14 @@ const Product = () => {
               <div className='mb-6'>
                 <div className='flex items-center justify-between mb-3'>
                   <p className='font-semibold'>Select Size</p>
-                  <button className='text-teal-600 text-sm font-semibold flex items-center gap-1'>
-                    Size guide
-                    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
-                    </svg>
-                  </button>
+                  {productData.sizeChart && (
+                    <button onClick={() => setShowSizeChart(true)} className='text-teal-600 text-sm font-semibold flex items-center gap-1'>
+                      Size guide
+                      <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+                      </svg>
+                    </button>
+                  )}
                 </div>
                 <div className='flex flex-wrap gap-3'>
                   {availableSizes.map((item, index) => (
@@ -377,7 +380,7 @@ const Product = () => {
             </div>
 
             {/* Product Details */}
-            {(productData.material || productData.category || productData.subCategory) && (
+            {(productData.material || productData.fabric || productData.category || productData.subCategory || productData.neckType || productData.sleeve || productData.pattern) && (
               <div className='mb-6'>
                 <p className='font-semibold mb-4'>Product Details</p>
                 <div className='grid grid-cols-2 gap-4'>
@@ -393,10 +396,34 @@ const Product = () => {
                       <p className='font-medium'>{productData.subCategory}</p>
                     </div>
                   )}
-                  {productData.material && (
+                  {(productData.material || productData.fabric) && (
                     <div className='border-b border-gray-100 pb-3'>
-                      <p className='text-xs text-gray-500 mb-1'>Material</p>
-                      <p className='font-medium'>{productData.material}</p>
+                      <p className='text-xs text-gray-500 mb-1'>Fabric</p>
+                      <p className='font-medium'>{productData.material || productData.fabric}</p>
+                    </div>
+                  )}
+                  {productData.neckType && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Neck</p>
+                      <p className='font-medium'>{productData.neckType}</p>
+                    </div>
+                  )}
+                  {productData.sleeve && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Sleeve</p>
+                      <p className='font-medium'>{productData.sleeve}</p>
+                    </div>
+                  )}
+                  {productData.pattern && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Pattern</p>
+                      <p className='font-medium'>{productData.pattern}</p>
+                    </div>
+                  )}
+                  {activeColour?.color && (
+                    <div className='border-b border-gray-100 pb-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Colour</p>
+                      <p className='font-medium'>{activeColour.color}</p>
                     </div>
                   )}
                   {productData.brand && (
@@ -411,7 +438,7 @@ const Product = () => {
 
             {/* Product Description & Care */}
             <div className='border-t border-gray-200'>
-              {productData.description && (
+              {(activeColour?.description || productData.description) && (
                 <div className='py-4 border-b border-gray-200'>
                   <div className='flex items-center gap-3 mb-2'>
                     <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -419,7 +446,7 @@ const Product = () => {
                     </svg>
                     <p className='font-semibold'>Product Description</p>
                   </div>
-                  <p className='text-sm text-gray-600 ml-8'>{productData.description}</p>
+                  <p className='text-sm text-gray-600 ml-8 whitespace-pre-line'>{activeColour?.description || productData.description}</p>
                 </div>
               )}
               {productData.careInstructions && (
@@ -634,6 +661,20 @@ const Product = () => {
           </button>
         </div>
       </div>
+
+      {/* Size chart modal */}
+      {showSizeChart && productData.sizeChart && (
+        <div className='fixed inset-0 z-50 grid place-items-center p-4' onClick={() => setShowSizeChart(false)}>
+          <div className='fixed inset-0 bg-black/60' />
+          <div className='relative bg-white rounded-xl p-4 max-w-lg w-full max-h-[85vh] overflow-auto' onClick={(e) => e.stopPropagation()}>
+            <div className='flex items-center justify-between mb-3'>
+              <p className='font-semibold text-lg'>Size Chart</p>
+              <button onClick={() => setShowSizeChart(false)} className='text-2xl leading-none text-gray-500 hover:text-black'>&times;</button>
+            </div>
+            <img src={productData.sizeChart} alt='Size chart' className='w-full h-auto rounded-lg' />
+          </div>
+        </div>
+      )}
 
       {/* AI-powered cross-sell */}
       <AISuggestions productId={productData._id} />

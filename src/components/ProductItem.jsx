@@ -14,7 +14,6 @@ const ProductItem = ({ id, image, name, price, product: passedProduct }) => {
   const colours = (p.colours || []).filter((c) => c && (c.images?.length || c.color))
   const imgs = (colours[0]?.images?.length ? colours[0].images : (Array.isArray(p.image) ? p.image : image)) || []
   const cover = imgs[0] || (Array.isArray(image) ? image[0] : image)
-  const hover = imgs[1]
 
   const mrp = Number(p.price) || Number(price) || 0
   const selling = p.discountPrice ? Number(p.discountPrice) : mrp
@@ -38,8 +37,7 @@ const ProductItem = ({ id, image, name, price, product: passedProduct }) => {
     <div className='group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow'>
       {/* Image */}
       <Link to={`/product/${id || p._id}`} onClick={() => window.scrollTo(0, 0)} className='block relative aspect-[3/4] bg-gray-100 overflow-hidden'>
-        <img src={cover} alt={productName} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' />
-        {hover && <img src={hover} alt='' className='absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500' />}
+        <img src={cover} alt={productName} className='w-full h-full object-cover' />
 
         {p.bestseller && (
           <span className='absolute top-3 left-3 bg-white text-green-700 text-[11px] font-bold tracking-wide px-3 py-1.5 rounded-md shadow-sm'>BEST SELLER</span>

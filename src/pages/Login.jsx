@@ -112,7 +112,16 @@ const Login = () => {
       else toast.error(response.data.message);
     } catch (error) {
       console.error('Google sign-in error:', error);
-      toast.error('Failed to sign in with Google');
+      const code = error?.code || '';
+      // A cancelled popup is not an error worth alarming the user about.
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
+      const messages = {
+        'auth/unauthorized-domain': 'This site is not authorised for Google sign-in yet. Please try again shortly.',
+        'auth/popup-blocked': 'Your browser blocked the sign-in popup. Please allow popups and try again.',
+        'auth/network-request-failed': 'Network error — check your connection and try again.',
+        'auth/operation-not-allowed': 'Google sign-in is temporarily unavailable.',
+      };
+      toast.error(messages[code] || error?.message || 'Failed to sign in with Google');
     }
   }
 

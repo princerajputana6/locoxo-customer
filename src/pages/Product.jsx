@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
@@ -122,6 +122,21 @@ const Product = () => {
     return [...new Set((productData.variants || []).map((v) => v.size).filter(Boolean))]
   }, [productData, activeColour])
 
+  // Main-image navigation (arrows) + thumbnail-strip scrolling.
+  const thumbRef = useRef(null)
+  const goImage = (delta) => {
+    if (!activeImages.length) return
+    const cur = Math.max(0, activeImages.indexOf(image))
+    const next = (cur + delta + activeImages.length) % activeImages.length
+    setImage(activeImages[next])
+  }
+  const scrollThumbs = (delta) => {
+    const el = thumbRef.current
+    if (!el) return
+    if (window.innerWidth >= 1024) el.scrollBy({ top: delta, behavior: 'smooth' })
+    else el.scrollBy({ left: delta, behavior: 'smooth' })
+  }
+
   // Switch colour: reset the gallery + size to the new colour.
   const pickColour = (idx) => {
     setColourIdx(idx)
@@ -204,18 +219,29 @@ const Product = () => {
             <div className='lg:sticky lg:top-24'>
               <div className='flex flex-col-reverse lg:flex-row gap-4'>
                 {/* Thumbnails — scroll within a fixed track so many images never push the layout */}
-                <div className='flex lg:flex-col shrink-0 overflow-x-auto lg:overflow-y-auto gap-3 lg:w-20 lg:max-h-[560px] pr-1 thumb-scroll'>
-                  {activeImages.map((item, index) => (
-                    <img
-                      onClick={() => setImage(item)}
-                      src={item}
-                      key={index}
-                      className={`w-16 h-20 lg:w-full lg:h-24 shrink-0 object-cover cursor-pointer rounded-lg border-2 transition-all ${
-                        image === item ? 'border-black' : 'border-gray-200 hover:border-gray-400'
-                      }`}
-                      alt=""
-                    />
-                  ))}
+                <div className='flex lg:flex-col shrink-0 lg:w-20 items-center gap-2'>
+                  <div ref={thumbRef} className='flex lg:flex-col overflow-x-auto lg:overflow-y-auto gap-3 lg:max-h-[520px] w-full scrollbar-hide'>
+                    {activeImages.map((item, index) => (
+                      <img
+                        onClick={() => setImage(item)}
+                        src={item}
+                        key={index}
+                        className={`w-16 h-20 lg:w-full lg:h-24 shrink-0 object-cover cursor-pointer rounded-lg border-2 transition-all ${
+                          image === item ? 'border-black' : 'border-gray-200 hover:border-gray-400'
+                        }`}
+                        alt=""
+                      />
+                    ))}
+                  </div>
+                  {/* Down arrow to scroll more thumbnails (shown when there are many) */}
+                  {activeImages.length > 4 && (
+                    <button onClick={() => scrollThumbs(300)} aria-label='More images'
+                      className='hidden lg:flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors'>
+                      <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                      </svg>
+                    </button>
+                  )}
                 </div>
 
                 {/* Main Image */}
@@ -227,12 +253,23 @@ const Product = () => {
                     </div>
                   )}
                   <img className='w-full h-auto rounded-lg object-cover' src={image} alt={productData.name} />
-                  {/* Navigation Arrow */}
-                  <button className='absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors'>
-                    <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
-                    </svg>
-                  </button>
+                  {/* Navigation Arrows */}
+                  {activeImages.length > 1 && (
+                    <>
+                      <button onClick={() => goImage(-1)} aria-label='Previous image'
+                        className='absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors'>
+                        <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+                        </svg>
+                      </button>
+                      <button onClick={() => goImage(1)} aria-label='Next image'
+                        className='absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors'>
+                        <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+                        </svg>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -291,31 +328,6 @@ const Product = () => {
                       </button>
                     )
                   })}
-                </div>
-              </div>
-            )}
-
-            {/* Image thumbnails for the selected colour */}
-            {activeImages.length > 1 && (
-              <div className='mb-6'>
-                <p className='font-semibold mb-3'>Select Image</p>
-                <div className='flex gap-3'>
-                  {activeImages.slice(0, 4).map((img, idx) => (
-                    <div 
-                      key={idx}
-                      onClick={() => setImage(img)}
-                      className={`relative w-16 h-20 rounded-lg overflow-hidden cursor-pointer border-2 ${image === img ? 'border-black' : 'border-gray-200'}`}
-                    >
-                      <img src={img} alt='' className='w-full h-full object-cover' />
-                      {image === img && (
-                        <div className='absolute top-1 right-1 w-5 h-5 bg-black rounded-full flex items-center justify-center'>
-                          <svg className='w-3 h-3 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={3} d='M5 13l4 4L19 7' />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  ))}
                 </div>
               </div>
             )}

@@ -39,6 +39,15 @@ const PlaceOrder = () => {
         load()
     }, [token])
 
+    // Keep an address selected at all times: single address → that one; several → the default, else the first.
+    useEffect(() => {
+        if (!addresses.length) return
+        if (!addresses.find(a => a._id === selectedAddressId)) {
+            const def = addresses.find(a => a.isDefault) || addresses[0]
+            if (def) setSelectedAddressId(def._id)
+        }
+    }, [addresses])
+
     const selectedAddress = addresses.find(a => a._id === selectedAddressId)
 
     const saveNewAddress = async (addr) => {

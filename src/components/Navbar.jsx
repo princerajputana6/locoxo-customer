@@ -19,6 +19,18 @@ const Navbar = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const searchDebounce = useRef(null);
     const autoPickAttempted = useRef(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const profileRef = useRef(null);
+
+    // Close the profile dropdown only when clicking outside it (stays open across menu hover).
+    useEffect(() => {
+      if (!showProfileMenu) return;
+      const onDocClick = (e) => {
+        if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfileMenu(false);
+      };
+      document.addEventListener('mousedown', onDocClick);
+      return () => document.removeEventListener('mousedown', onDocClick);
+    }, [showProfileMenu]);
 
     const {setShowSearch, getCartCount, navigate, token, setToken, setCartItems, categories} = useContext(ShopContext);
     const { isLoaded: googleMapsLoaded, loadError } = useGoogleMaps();
@@ -282,23 +294,23 @@ const Navbar = () => {
               </svg>
             </button>
             
-            <div className='group relative'>
-                <button onClick={()=> token ? null : navigate('/login') } className='p-1.5 hover:bg-white/10 rounded transition-colors'>
+            <div ref={profileRef} className='relative'>
+                <button onClick={()=> token ? setShowProfileMenu(v => !v) : navigate('/login') } className='p-1.5 hover:bg-white/10 rounded transition-colors'>
                   <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' />
                   </svg>
                 </button>
-                {token && 
-                <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
+                {token && showProfileMenu &&
+                <div className='absolute dropdown-menu right-0 pt-2 z-50'>
                     <div className='flex flex-col gap-1 w-40 py-2 bg-white border border-gray-200 shadow-lg rounded-lg text-locoxo-text'>
-                        <p onClick={()=>navigate('/profile')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>My Profile</p>
-                        <p onClick={()=>navigate('/orders')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Orders</p>
-                        <p onClick={()=>navigate('/membership')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors text-locoxo-orange-dark font-semibold'>👑 Premium</p>
-                        <p onClick={()=>navigate('/referral')} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Refer & Earn</p>
-                        <p onClick={logout} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Logout</p>
+                        <p onClick={()=>{ setShowProfileMenu(false); navigate('/profile') }} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>My Profile</p>
+                        <p onClick={()=>{ setShowProfileMenu(false); navigate('/orders') }} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Orders</p>
+                        <p onClick={()=>{ setShowProfileMenu(false); navigate('/membership') }} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors text-locoxo-orange-dark font-semibold'>👑 Premium</p>
+                        <p onClick={()=>{ setShowProfileMenu(false); navigate('/referral') }} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Refer & Earn</p>
+                        <p onClick={()=>{ setShowProfileMenu(false); logout() }} className='px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors'>Logout</p>
                     </div>
                 </div>}
-            </div> 
+            </div>
             <Link to='/cart' className='relative p-1.5 hover:bg-white/10 rounded transition-colors'>
                 <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />

@@ -64,7 +64,7 @@ const PlaceOrder = () => {
     }
 
     const onSubmitHandler = async (event) => {
-        event.preventDefault()
+        if (event) event.preventDefault()
         if (!token) {
             setShowLoginMessage(true)
             setTimeout(() => setShowLoginMessage(false), 5000)
@@ -159,7 +159,10 @@ const PlaceOrder = () => {
                 <p className='text-sm text-gray-600'>Complete your order</p>
             </div>
 
-            <form onSubmit={onSubmitHandler} className='flex flex-col lg:flex-row gap-8'>
+            {/* Not a <form>: the delivery-address block contains its own AddressForm,
+                and nested <form> elements are invalid (the browser drops the inner one,
+                so "Use This Address" would submit this checkout form instead of saving). */}
+            <div className='flex flex-col lg:flex-row gap-8'>
                 {/* Left */}
                 <div className='flex-1 space-y-8'>
                     {/* Account summary */}
@@ -298,12 +301,12 @@ const PlaceOrder = () => {
                             </div>
                         </div>
 
-                        <button type='submit' disabled={!selectedAddress} className='w-full bg-locoxo-orange text-white py-4 font-semibold tracking-wide hover:bg-locoxo-orange-dark transition-colors mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed'>
+                        <button type='button' onClick={onSubmitHandler} disabled={!selectedAddress} className='w-full bg-locoxo-orange text-white py-4 font-semibold tracking-wide hover:bg-locoxo-orange-dark transition-colors mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed'>
                             PLACE ORDER
                         </button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
     )
 }

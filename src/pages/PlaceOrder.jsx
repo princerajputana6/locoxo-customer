@@ -16,7 +16,7 @@ const PlaceOrder = () => {
     const [user, setUser] = useState(null)
     const [addresses, setAddresses] = useState([])
     const [selectedAddressId, setSelectedAddressId] = useState(null)
-    const [showNewAddress, setShowNewAddress] = useState(false)
+    const [showAddressModal, setShowAddressModal] = useState(false)
 
     // Email is always editable (user may want to send to a different one), prefilled from profile
     const [email, setEmail] = useState('')
@@ -32,7 +32,6 @@ const PlaceOrder = () => {
                     setAddresses(data.user.addresses || [])
                     const def = data.user.addresses?.find(a => a.isDefault) || data.user.addresses?.[0]
                     if (def) setSelectedAddressId(def._id)
-                    else setShowNewAddress(true)
                 }
             } catch (err) { console.error(err) }
         }
@@ -58,7 +57,7 @@ const PlaceOrder = () => {
                 setAddresses(data.addresses)
                 const newest = data.addresses[data.addresses.length - 1]
                 if (newest) setSelectedAddressId(newest._id)
-                setShowNewAddress(false)
+                setShowAddressModal(false)
             } else toast.error(data.message)
         } catch { toast.error('Failed to save address') }
     }
@@ -201,10 +200,10 @@ const PlaceOrder = () => {
                     <section>
                         <div className='flex flex-wrap items-center justify-between gap-3 mb-4'>
                             <h2 className='text-xl font-bold uppercase tracking-tight'>Delivery Address</h2>
-                            {!showNewAddress && (
+                            {addresses.length > 0 && (
                                 <button
                                     type='button'
-                                    onClick={() => setShowNewAddress(true)}
+                                    onClick={() => setShowAddressModal(true)}
                                     className='inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide hover:underline'
                                 >
                                     <Plus className='w-4 h-4' /> Add new address
@@ -212,21 +211,17 @@ const PlaceOrder = () => {
                             )}
                         </div>
 
-                        {showNewAddress ? (
-                            <div className='border border-gray-200 p-5 sm:p-6'>
-                                <AddressForm
-                                    initial={{ name: user?.name, phone: user?.phone }}
-                                    onSubmit={saveNewAddress}
-                                    onCancel={addresses.length > 0 ? () => setShowNewAddress(false) : undefined}
-                                    submitLabel='Use This Address'
-                                />
-                            </div>
-                        ) : addresses.length === 0 ? (
+                        {addresses.length === 0 ? (
                             <div className='text-center py-10 border border-dashed border-gray-200'>
                                 <MapPin className='w-10 h-10 mx-auto mb-3 text-gray-300' strokeWidth={1.5} />
                                 <p className='font-semibold text-sm'>No saved addresses</p>
-                                <button type='button' onClick={() => setShowNewAddress(true)} className='mt-3 text-sm font-semibold underline'>
-                                    Add one
+                                <p className='text-xs text-gray-500 mt-1'>Add a delivery address to continue</p>
+                                <button
+                                    type='button'
+                                    onClick={() => setShowAddressModal(true)}
+                                    className='mt-4 inline-flex items-center gap-2 bg-locoxo-orange text-white px-6 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-locoxo-orange-dark transition-colors'
+                                >
+                                    <Plus className='w-4 h-4' /> Add Address
                                 </button>
                             </div>
                         ) : (
@@ -307,6 +302,28 @@ const PlaceOrder = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Add-address modal — opens over the checkout; saving closes it and the new
+                card appears (selected) in the list above. */}
+            {showAddressModal && (
+                <div className='fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto' onClick={() => setShowAddressModal(false)}>
+                    <div className='fixed inset-0 bg-black/60' />
+                    <div className='relative bg-white w-full max-w-2xl my-8 rounded-lg shadow-xl' onClick={(e) => e.stopPropagation()}>
+                        <div className='flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-200'>
+                            <h3 className='text-lg font-bold uppercase tracking-tight'>Add Delivery Address</h3>
+                            <button type='button' onClick={() => setShowAddressModal(false)} aria-label='Close' className='text-2xl leading-none text-gray-400 hover:text-black'>&times;</button>
+                        </div>
+                        <div className='px-5 sm:px-6 py-5 max-h-[75vh] overflow-y-auto'>
+                            <AddressForm
+                                initial={{ name: user?.name, phone: user?.phone }}
+                                onSubmit={saveNewAddress}
+                                onCancel={() => setShowAddressModal(false)}
+                                submitLabel='Save Address'
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -97,13 +97,18 @@ const PlaceOrder = () => {
             const orderNumber = 'ORD' + Date.now() + Math.floor(Math.random() * 1000)
             const subtotal = getCartAmount()
             const referralCode = localStorage.getItem('referralCode')
+            let appliedCoupon = null
+            try { appliedCoupon = JSON.parse(localStorage.getItem('appliedCoupon') || 'null') } catch { appliedCoupon = null }
+            const shipping = subtotal >= 999 ? 0 : delivery_fee               // free delivery over ₹999
+            const discount = appliedCoupon?.discount || 0                     // backend re-validates authoritatively
 
             const orderData = {
                 orderNumber,
                 items: orderItems,
                 subtotal,
-                shippingCharge: delivery_fee,
-                amount: subtotal + delivery_fee,
+                shippingCharge: shipping,
+                couponCode: appliedCoupon?.code,
+                amount: Math.max(0, subtotal - discount) + shipping,
                 email,
                 address: {
                     name: selectedAddress.name || user?.name,
@@ -123,6 +128,7 @@ const PlaceOrder = () => {
                 if (data.success) {
                     setCartItems({})
                     localStorage.removeItem('referralCode')
+                    localStorage.removeItem('appliedCoupon')
                     navigate('/orders')
                 } else toast.error(data.message)
             } else {

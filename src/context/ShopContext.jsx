@@ -72,25 +72,31 @@ const ShopContextProvider = (props) => {
     }
 
     const updateQuantity = async (itemId, size, quantity) => {
-
-        let cartData = structuredClone(cartItems);
-
-        cartData[itemId][size] = quantity;
-
-        setCartItems(cartData)
+        // Functional update so several rapid changes (e.g. a size swap = remove + add) compose correctly.
+        setCartItems((prev) => {
+            const c = structuredClone(prev)
+            if (!c[itemId]) c[itemId] = {}
+            if (quantity <= 0) {
+                delete c[itemId][size]
+                if (Object.keys(c[itemId]).length === 0) delete c[itemId]
+            } else {
+                c[itemId][size] = quantity
+            }
+            return c
+        })
 
         if (token) {
             try {
-
                 await axios.post(backendUrl + '/api/cart/update', { itemId, size, quantity }, { headers: { token } })
-
             } catch (error) {
                 console.log(error)
                 toast.error(error.message)
             }
         }
-
     }
+
+    // The price a customer actually pays: discounted price when set, else MRP.
+    const sellingPriceOf = (p) => (p?.discountPrice && Number(p.discountPrice) > 0 ? Number(p.discountPrice) : Number(p?.price) || 0)
 
     const getCartAmount = () => {
         let totalAmount = 0;
@@ -99,7 +105,7 @@ const ShopContextProvider = (props) => {
             for (const item in cartItems[items]) {
                 try {
                     if (cartItems[items][item] > 0) {
-                        totalAmount += itemInfo.price * cartItems[items][item];
+                        totalAmount += sellingPriceOf(itemInfo) * cartItems[items][item];
                     }
                 } catch (error) {
 
@@ -107,6 +113,21 @@ const ShopContextProvider = (props) => {
             }
         }
         return totalAmount;
+    }
+
+    // Total the customer saves vs MRP across the cart.
+    const getCartSavings = () => {
+        let savings = 0;
+        for (const items in cartItems) {
+            const itemInfo = products.find((product) => product._id === items);
+            if (!itemInfo) continue;
+            const mrp = Number(itemInfo.price) || 0;
+            const selling = sellingPriceOf(itemInfo);
+            for (const item in cartItems[items]) {
+                if (cartItems[items][item] > 0 && mrp > selling) savings += (mrp - selling) * cartItems[items][item];
+            }
+        }
+        return savings;
     }
 
     const getProductsData = async () => {
@@ -172,7 +193,7 @@ const ShopContextProvider = (props) => {
         search, setSearch, showSearch, setShowSearch,
         cartItems, addToCart,setCartItems,
         getCartCount, updateQuantity,
-        getCartAmount, navigate, backendUrl,
+        getCartAmount, getCartSavings, sellingPriceOf, navigate, backendUrl,
         setToken, token, categories
     }
 

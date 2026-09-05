@@ -20,24 +20,19 @@ const categoryImages = {
 }
 const categoryColors = { 'Men': 'bg-blue-100', 'Women': 'bg-pink-100', 'Anime': 'bg-purple-100', 'Super Hero': 'bg-red-100' }
 
-// Default slide shown instantly so there's never a blank "loading" hero.
-const DEFAULT_SLIDES = [[
-  { title: 'MEN', subtitle: 'Shop Men Collection', image: categoryImages['Men'], category: 'Men', bgColor: 'bg-blue-100' },
-  { title: 'WOMEN', subtitle: 'Shop Women Collection', image: categoryImages['Women'], category: 'Women', bgColor: 'bg-pink-100' },
-  { title: 'ANIME', subtitle: 'Special Editions', image: categoryImages['Anime'], category: 'Anime', bgColor: 'bg-purple-100' },
-]]
-
 const Hero = () => {
   const navigate = useNavigate()
   const { categories } = useContext(ShopContext)
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [slides, setSlides] = useState(DEFAULT_SLIDES) // paint immediately
+  const [slides, setSlides] = useState([]) // no dummy — build only from real categories
 
   useEffect(() => {
-    if (categories && categories.length > 0) {
+    // Only categories the admin marked for the menu, in display order.
+    const cats = (categories || []).filter((c) => !c.parentCategory && c.displayInMenu !== false)
+    if (cats.length > 0) {
       const built = []
-      for (let i = 0; i < categories.length; i += 3) {
-        built.push(categories.slice(i, i + 3).map(cat => ({
+      for (let i = 0; i < cats.length; i += 3) {
+        built.push(cats.slice(i, i + 3).map(cat => ({
           title: cat.name.toUpperCase(),
           subtitle: cat.description || `Shop ${cat.name} Collection`,
           image: optimize(cat.image) || categoryImages[cat.name] || categoryImages['Men'],
@@ -45,7 +40,9 @@ const Hero = () => {
           bgColor: categoryColors[cat.name] || 'bg-gray-100',
         })))
       }
-      if (built.length) { setSlides(built); setCurrentSlide(0) }
+      setSlides(built); setCurrentSlide(0)
+    } else {
+      setSlides([])
     }
   }, [categories])
 
@@ -57,6 +54,9 @@ const Hero = () => {
   }, [slides.length])
 
   const go = (category) => navigate(`/collection?category=${category}`)
+
+  // Nothing to show until real categories load — no dummy placeholder.
+  if (slides.length === 0) return null
 
   return (
     <div className='relative w-full h-[90vh] bg-locoxo-blue overflow-hidden'>

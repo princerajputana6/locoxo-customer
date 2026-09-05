@@ -34,6 +34,8 @@ const Navbar = () => {
 
     const {setShowSearch, getCartCount, navigate, token, setToken, setCartItems, categories} = useContext(ShopContext);
     const { isLoaded: googleMapsLoaded, loadError } = useGoogleMaps();
+    // Only categories the admin marked to display in the menu (respects the yes/no toggle).
+    const menuCategories = (categories || []).filter((c) => c.displayInMenu !== false);
 
     // Serviceable pincodes - Currently only Rajasthan
     const serviceablePincodes = [
@@ -323,7 +325,7 @@ const Navbar = () => {
       {/* Category Navigation Bar — nested hover dropdowns (category → sub → child) */}
       <div className='hidden lg:block bg-locoxo-secondary text-white relative z-40'>
         <div className='max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-16'>
-          <CategoryNav categories={categories} />
+          <CategoryNav categories={menuCategories} />
         </div>
       </div>
 
@@ -340,15 +342,14 @@ const Navbar = () => {
                     </div>
                     <div className='flex-1 overflow-y-auto'>
                       <NavLink onClick={()=>setVisible(false)} className='block py-4 px-6 border-b hover:bg-white/10 font-medium transition-colors' to='/'>HOME</NavLink>
-                      <NavLink onClick={()=>setVisible(false)} className='block py-4 px-6 border-b hover:bg-white/10 font-medium transition-colors' to='/collection'>SHOP ALL</NavLink>
-                      
-                      {categories.length > 0 && (
+
+                      {menuCategories.length > 0 && (
                         <>
                           <div className='py-4 px-6 border-b border-white/10 bg-white/5'>
                             <span className='text-xs font-bold text-white/60 uppercase tracking-wider'>Categories</span>
                           </div>
-                          
-                          {categories.filter(cat => !cat.parentCategory).map((category) => (
+
+                          {menuCategories.filter(cat => !cat.parentCategory).map((category) => (
                             <div key={category._id}>
                               <NavLink 
                                 onClick={()=>setVisible(false)} 
@@ -358,9 +359,9 @@ const Navbar = () => {
                                 {category.name}
                                 <svg className='w-4 h-4 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' /></svg>
                               </NavLink>
-                              {categories.filter(sub => sub.parentCategory === category._id).length > 0 && (
+                              {menuCategories.filter(sub => sub.parentCategory === category._id).length > 0 && (
                                 <div className='bg-white/5'>
-                                  {categories.filter(sub => sub.parentCategory === category._id).map((subCat) => (
+                                  {menuCategories.filter(sub => sub.parentCategory === category._id).map((subCat) => (
                                     <NavLink
                                       key={subCat._id}
                                       onClick={()=>setVisible(false)}

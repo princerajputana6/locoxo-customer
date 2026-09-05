@@ -18,14 +18,13 @@ const Home = () => {
   const [banners, setBanners] = useState([])
   const [sections, setSections] = useState([])
   const [heroIdx, setHeroIdx] = useState(0)
+  const [heroReady, setHeroReady] = useState(false) // don't paint the hero until we know what it is
 
   useEffect(() => {
-    axios.get(`${backendUrl}/api/banner/list`)
-      .then((r) => { if (r.data.success) setBanners(r.data.banners.filter((b) => b.isActive)) })
-      .catch(() => {})
-    axios.get(`${backendUrl}/api/merchandising/public`)
-      .then((r) => { if (r.data.success) setSections(r.data.sections || []) })
-      .catch(() => {})
+    Promise.allSettled([
+      axios.get(`${backendUrl}/api/banner/list`).then((r) => { if (r.data.success) setBanners(r.data.banners.filter((b) => b.isActive)) }),
+      axios.get(`${backendUrl}/api/merchandising/public`).then((r) => { if (r.data.success) setSections(r.data.sections || []) }),
+    ]).finally(() => setHeroReady(true))
   }, [])
 
   const heroBanners = banners.filter((b) => b.bannerType === 'homepage_slider').sort((a, b) => a.displayOrder - b.displayOrder)
@@ -66,8 +65,11 @@ const Home = () => {
 
   return (
     <div>
-      {/* Hero priority: merchandising hero section → banner slider → category hero */}
-      {heroSection ? (
+      {/* Hero priority: merchandising hero section → banner slider → category hero.
+          Held back until the merchandising/banner fetch settles so no dummy flashes. */}
+      {!heroReady ? (
+        <div className='w-full h-[90vh] bg-locoxo-blue/10 animate-pulse' />
+      ) : heroSection ? (
         <HeroCategories section={heroSection} />
       ) : heroBanners.length > 0 ? (
         <div className='relative w-full h-[90vh] overflow-hidden bg-locoxo-blue'>

@@ -15,6 +15,7 @@ const Collection = () => {
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState('relavent')
+  const bestsellerOnly = searchParams.get('bestseller') === 'true'
 
   // Facets are derived from the live (publish-gated) product list — nothing hardcoded.
   const categoryFacets = useMemo(() => [...new Set(products.map(catName).filter(Boolean))].sort(), [products])
@@ -30,6 +31,8 @@ const Collection = () => {
 
   const applyFilter = () => {
     let copy = products.slice();
+    // "View all" from the Best Sellers section → show only bestseller products.
+    if (bestsellerOnly) copy = copy.filter((i) => i.bestseller)
     if (showSearch && search) copy = copy.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
     // Match a chosen category at ANY level (main / sub / child) so the nested
     // navbar dropdown links filter correctly.
@@ -40,7 +43,7 @@ const Collection = () => {
     setFilterProducts(copy)
   }
 
-  useEffect(() => { applyFilter() }, [category, subCategory, search, showSearch, products, sortType])
+  useEffect(() => { applyFilter() }, [category, subCategory, search, showSearch, products, sortType, bestsellerOnly])
 
   const Facet = ({ title, values, selected, setter }) => values.length > 0 && (
     <div className='border-b border-gray-200 pb-6'>

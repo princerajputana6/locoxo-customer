@@ -26,16 +26,23 @@ const HeroCategories = ({ section }) => {
     <div className='relative w-full h-[88vh] overflow-hidden bg-black'>
       {slides.map((slide, i) => (
         <div key={i} className={`absolute inset-0 flex transition-opacity duration-700 ${i === cur ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          {slide.map((cat, j) => (
+          {slide.map((cat, j) => {
+            const showName = cat.showName !== false
+            const showButton = cat.showButton !== false
+            return (
             <Link key={j} to={cat.url || '/collection'} className='relative flex-1 group overflow-hidden'>
-              <img src={cat.image || 'https://placehold.co/800x1000?text=' + encodeURIComponent(cat.name || '')} alt={cat.name} className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-105' />
+              <picture>
+                {cat.imageMobile && <source media='(max-width: 640px)' srcSet={cat.imageMobile} />}
+                <img src={cat.image || 'https://placehold.co/800x1000?text=' + encodeURIComponent(cat.name || '')} alt={cat.name} className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-105' />
+              </picture>
               <div className='absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors' />
               <div className='absolute inset-0 flex flex-col items-center justify-center text-center px-4'>
-                <h2 className='text-white text-3xl md:text-5xl font-heading font-extrabold tracking-tight drop-shadow'>{cat.name}</h2>
-                <span className='mt-4 inline-block bg-white text-black px-6 py-2 text-xs md:text-sm font-semibold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity'>Shop Now</span>
+                {showName && <h2 className='text-white text-3xl md:text-5xl font-heading font-extrabold tracking-tight drop-shadow'>{cat.name}</h2>}
+                {showButton && <span className='mt-4 inline-block bg-white text-black px-6 py-2 text-xs md:text-sm font-semibold tracking-widest uppercase'>{cat.buttonText || 'Shop Now'}</span>}
               </div>
             </Link>
-          ))}
+            )
+          })}
         </div>
       ))}
       {slides.length > 1 && (

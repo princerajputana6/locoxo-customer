@@ -1,8 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import Title from './Title'
 import ProductItem from './ProductItem'
 import { ShopContext } from '../context/ShopContext'
+
+// Show the mobile image on small screens and the desktop image on larger ones.
+const ResponsiveImg = ({ desktop, mobile, alt, className }) => (
+  <picture>
+    {mobile && <source media='(max-width: 640px)' srcSet={mobile} />}
+    <img src={desktop || mobile} alt={alt} className={className} />
+  </picture>
+)
 
 // Live column count from the admin-configured card placement (desktop/tablet/mobile).
 const useCols = (section) => {
@@ -25,7 +34,7 @@ const useCols = (section) => {
 // contentType: products | categories | combo · layout: grid | slider · with
 // admin-configured cards-per-row (responsive). Nothing hardcoded.
 const DynamicSection = ({ section }) => {
-  const { currency, navigate } = useContext(ShopContext)
+  const { currency, navigate, addToCart } = useContext(ShopContext)
   const cols = useCols(section)
   if (!section) return null
 
@@ -34,12 +43,20 @@ const DynamicSection = ({ section }) => {
   const categories = (section.categories || []).filter(Boolean)
   const combos = (section.combos || []).filter(Boolean)
   const banner = (section.bannerImages || []).find(Boolean)
-  const hasMedia = banner || section.video
+  const bannerMobile = section.bannerMobile
+  const hasMedia = banner || bannerMobile || section.video
   const slider = section.layout === 'slider'
 
   const words = (section.name || '').trim().split(' ')
   const text2 = words.length > 1 ? words.pop() : ''
   const text1 = words.join(' ') || section.name
+
+  // "View all" destination. A Best Sellers section filters the collection to
+  // bestsellers even if the admin left a generic /collection link.
+  const isBestSeller = /best\s*sell/i.test(section.name || '')
+  const viewAllLink = isBestSeller
+    ? '/collection?bestseller=true'
+    : (section.link || null)
 
   const count = type === 'categories' ? categories.length : type === 'combo' ? combos.length : products.length
   if (!count && !hasMedia) return null
@@ -52,15 +69,22 @@ const DynamicSection = ({ section }) => {
     ? <div className='flex gap-4 overflow-x-auto pb-3 snap-x scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>{children}</div>
     : <div className='grid gap-4 gap-y-6' style={gridStyle}>{children}</div>
 
-  const CategoryCard = ({ c }) => (
-    <Link to={c.url || '/collection'} style={itemStyle} className={`group block ${slider ? 'snap-start' : ''}`}>
-      <div className='relative overflow-hidden rounded-xl bg-gray-100 aspect-square'>
-        <img src={c.image || 'https://placehold.co/600x600?text=' + encodeURIComponent(c.name || '')} alt={c.name} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110' />
-        <div className='absolute inset-0 bg-gradient-to-t from-black/55 to-transparent' />
-        <span className='absolute bottom-3 left-0 right-0 text-center text-white font-semibold tracking-wide text-sm md:text-base'>{c.name}</span>
-      </div>
-    </Link>
-  )
+  const CategoryCard = ({ c }) => {
+    const showName = c.showName !== false
+    const showButton = c.showButton !== false
+    return (
+      <Link to={c.url || '/collection'} style={itemStyle} className={`group block ${slider ? 'snap-start' : ''}`}>
+        <div className='relative overflow-hidden rounded-xl bg-gray-100 aspect-square'>
+          <ResponsiveImg desktop={c.image || 'https://placehold.co/600x600?text=' + encodeURIComponent(c.name || '')} mobile={c.imageMobile} alt={c.name} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110' />
+          {(showName || showButton) && <div className='absolute inset-0 bg-gradient-to-t from-black/55 to-transparent' />}
+          <div className='absolute inset-x-0 bottom-3 flex flex-col items-center gap-2'>
+            {showName && <span className='text-center text-white font-semibold tracking-wide text-sm md:text-base'>{c.name}</span>}
+            {showButton && <span className='inline-block bg-white text-black px-4 py-1.5 text-xs font-semibold tracking-wide'>{c.buttonText || 'Shop Now'}</span>}
+          </div>
+        </div>
+      </Link>
+    )
+  }
 
   const ComboCard = ({ c }) => {
     const items = (c.products || []).filter(Boolean)
@@ -109,7 +133,7 @@ const DynamicSection = ({ section }) => {
       <div className='w-full px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] my-10'>
         <Link to={section.link || '/collection'} className='block group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all'>
           {section.video ? <video src={section.video} autoPlay muted loop playsInline className='w-full h-auto object-cover' />
-            : <img src={banner} alt={section.name} className='w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105' />}
+            : <ResponsiveImg desktop={banner} mobile={bannerMobile} alt={section.name} className='w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105' />}
         </Link>
       </div>
     )
@@ -120,7 +144,7 @@ const DynamicSection = ({ section }) => {
       {hasMedia && (
         <Link to={section.link || '#'} className='block mb-6 group overflow-hidden rounded-xl shadow-sm hover:shadow-lg transition-all'>
           {section.video ? <video src={section.video} autoPlay muted loop playsInline className='w-full h-auto object-cover' />
-            : <img src={banner} alt={section.name} className='w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105' />}
+            : <ResponsiveImg desktop={banner} mobile={bannerMobile} alt={section.name} className='w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105' />}
         </Link>
       )}
 
@@ -139,9 +163,9 @@ const DynamicSection = ({ section }) => {
               </div>
             ))}
           </Wrapper>
-          {section.link && type === 'products' && (
+          {type === 'products' && (viewAllLink) && (
             <div className='text-center mt-8'>
-              <Link to={section.link} className='inline-block border border-black px-8 py-3 text-sm font-semibold tracking-wide hover:bg-black hover:text-white transition-colors'>VIEW ALL</Link>
+              <Link to={viewAllLink} className='inline-block border border-black px-8 py-3 text-sm font-semibold tracking-wide hover:bg-black hover:text-white transition-colors'>VIEW ALL</Link>
             </div>
           )}
         </>

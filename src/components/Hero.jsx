@@ -12,32 +12,26 @@ const optimize = (url) => {
   return url
 }
 
-const categoryImages = {
-  'Men': 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&q=70&auto=format',
-  'Women': 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=70&auto=format',
-  'Anime': 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&q=70&auto=format',
-  'Super Hero': 'https://images.unsplash.com/photo-1612036782180-6f0b6ce846ce?w=800&q=70&auto=format',
-}
-const categoryColors = { 'Men': 'bg-blue-100', 'Women': 'bg-pink-100', 'Anime': 'bg-purple-100', 'Super Hero': 'bg-red-100' }
-
 const Hero = () => {
   const navigate = useNavigate()
   const { categories } = useContext(ShopContext)
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [slides, setSlides] = useState([]) // no dummy — build only from real categories
+  const [slides, setSlides] = useState([]) // built only from real category data
 
   useEffect(() => {
-    // Only categories the admin marked for the menu, in display order.
-    const cats = (categories || []).filter((c) => !c.parentCategory && c.displayInMenu !== false)
-    if (cats.length > 0) {
+    const all = categories || []
+    // Only top-level categories the admin marked for the menu, in display order.
+    const roots = all.filter((c) => !c.parentCategory && c.displayInMenu !== false)
+    // Real-data fallback: if a root has no image, use its first sub-category's image.
+    const childImage = (root) => (all.find((c) => String(c.parentCategory) === String(root._id) && c.image)?.image) || ''
+    if (roots.length > 0) {
       const built = []
-      for (let i = 0; i < cats.length; i += 3) {
-        built.push(cats.slice(i, i + 3).map(cat => ({
+      for (let i = 0; i < roots.length; i += 3) {
+        built.push(roots.slice(i, i + 3).map(cat => ({
           title: cat.name.toUpperCase(),
           subtitle: cat.description || `Shop ${cat.name} Collection`,
-          image: optimize(cat.image) || categoryImages[cat.name] || categoryImages['Men'],
+          image: optimize(cat.image || childImage(cat)),   // actual image only — no stock placeholder
           category: cat.name,
-          bgColor: categoryColors[cat.name] || 'bg-gray-100',
         })))
       }
       setSlides(built); setCurrentSlide(0)
@@ -66,16 +60,18 @@ const Hero = () => {
             {slide.map((category, catIndex) => (
               <div key={catIndex} onClick={() => go(category.category)}
                 className='flex-1 relative overflow-hidden cursor-pointer group w-full h-1/3 md:h-full md:w-auto'>
-                <div className='absolute inset-0 bg-locoxo-blue'>
-                  <img
-                    src={category.image}
-                    alt={category.title}
-                    loading={slideIndex === 0 ? 'eager' : 'lazy'}
-                    fetchpriority={slideIndex === 0 ? 'high' : 'auto'}
-                    decoding='async'
-                    className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
-                  />
-                  <div className={`absolute inset-0 ${category.bgColor === 'bg-black' ? 'bg-black/60' : 'bg-black/30'} group-hover:bg-black/40 transition-colors duration-300`}></div>
+                <div className='absolute inset-0 bg-gradient-to-br from-locoxo-blue to-black'>
+                  {category.image && (
+                    <img
+                      src={category.image}
+                      alt={category.title}
+                      loading={slideIndex === 0 ? 'eager' : 'lazy'}
+                      fetchpriority={slideIndex === 0 ? 'high' : 'auto'}
+                      decoding='async'
+                      className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+                    />
+                  )}
+                  <div className='absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300'></div>
                 </div>
                 <div className='relative h-full flex flex-col justify-center items-center text-center px-6'>
                   <h2 className='text-white text-3xl md:text-5xl font-heading font-extrabold mb-3 tracking-tight'>{category.title}</h2>

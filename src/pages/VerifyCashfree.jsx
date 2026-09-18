@@ -19,9 +19,10 @@ const VerifyCashfree = () => {
             if (data.success) {
                 setCartItems({})
                 localStorage.removeItem('referralCode')
+                localStorage.removeItem('appliedCoupon')
                 setStatus('success')
                 toast.success('Payment successful')
-                setTimeout(() => navigate('/orders'), 1200)
+                setTimeout(() => navigate('/order-confirmation/' + orderId), 1200)
             } else {
                 setStatus('failed')
                 toast.error(data.message || 'Payment not completed')

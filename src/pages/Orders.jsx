@@ -1,19 +1,26 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title';
+import Loader from '../components/Loader';
 import axios from 'axios';
 
 const Orders = () => {
 
-  const { backendUrl, token , currency, navigate} = useContext(ShopContext);
+  const { backendUrl, token , currency, navigate, products, sellingPriceOf } = useContext(ShopContext);
 
   const [orderData,setorderData] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Best-effort MRP for an order item (to strike through against the paid price).
+  const mrpFor = (item) => {
+    const prod = products?.find((p) => p._id === item.productId)
+    const mrp = prod ? Number(prod.price) : null
+    return mrp && mrp > Number(item.price) ? mrp : null
+  }
 
   const loadOrderData = async () => {
     try {
-      if (!token) {
-        return null
-      }
+      if (!token) { setLoading(false); return null }
 
       const response = await axios.post(backendUrl + '/api/order/userorders',{},{headers:{token}})
       if (response.data.success) {
@@ -31,9 +38,11 @@ const Orders = () => {
         })
         setorderData(allOrdersItem.reverse())
       }
-      
+
     } catch (error) {
-      
+
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -69,7 +78,9 @@ const Orders = () => {
             <p className='text-sm text-gray-600'>{orderData.length} {orderData.length === 1 ? 'order' : 'orders'}</p>
         </div>
 
-        {orderData.length === 0 ? (
+        {loading ? (
+          <Loader label='Loading your orders…' full={false} />
+        ) : orderData.length === 0 ? (
           <div className='text-center py-20'>
             <svg className='w-24 h-24 mx-auto mb-6 text-gray-300' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' />
@@ -86,8 +97,9 @@ const Orders = () => {
                         <img className='w-24 h-24 object-cover bg-gray-100' src={item.image} alt="" />
                         <div className='flex-1'>
                           <h3 className='font-semibold mb-2'>{item.name}</h3>
-                          <div className='flex flex-wrap gap-4 text-sm mb-3'>
+                          <div className='flex flex-wrap items-center gap-4 text-sm mb-3'>
                             <span className='font-bold text-lg'>{currency}{item.price}</span>
+                            {mrpFor(item) && <span className='text-gray-400 line-through text-sm'>{currency}{mrpFor(item)}</span>}
                             <span className='px-3 py-1 bg-gray-100 text-xs font-medium'>Qty: {item.quantity}</span>
                             <span className='px-3 py-1 bg-gray-100 text-xs font-medium'>Size: {item.size}</span>
                           </div>

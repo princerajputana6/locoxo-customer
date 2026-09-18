@@ -11,7 +11,7 @@ const typeIcon = (t) => (t === 'work' ? Briefcase : t === 'other' ? MapPin : Hom
 const PlaceOrder = () => {
     const [method, setMethod] = useState('cod')
     const [showLoginMessage, setShowLoginMessage] = useState(false)
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext)
+    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, sellingPriceOf } = useContext(ShopContext)
 
     const [user, setUser] = useState(null)
     const [addresses, setAddresses] = useState([])
@@ -85,7 +85,7 @@ const PlaceOrder = () => {
                                 productId: itemInfo._id,
                                 name: itemInfo.name,
                                 image: Array.isArray(itemInfo.image) ? itemInfo.image[0] : itemInfo.image,
-                                price: itemInfo.price,
+                                price: sellingPriceOf(itemInfo),   // discounted price actually paid, not MRP
                                 quantity: cartItems[items][item],
                                 size: item
                             })
@@ -129,7 +129,7 @@ const PlaceOrder = () => {
                     setCartItems({})
                     localStorage.removeItem('referralCode')
                     localStorage.removeItem('appliedCoupon')
-                    navigate('/orders')
+                    navigate('/order-confirmation/' + data.orderId)
                 } else toast.error(data.message)
             } else {
                 const { data } = await axios.post(backendUrl + '/api/order/cashfree', orderData, { headers: { token } })

@@ -2,8 +2,21 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext'
 import axios from 'axios'
-import { Package, Truck, CheckCircle, Clock, Radio } from 'lucide-react'
+import { Package, Truck, CheckCircle, Clock, Radio, RefreshCw, ExternalLink } from 'lucide-react'
 import { useOrderRealtime } from '../hooks/useOrderRealtime'
+
+// Map a carrier shipment status → the 4-step customer timeline index.
+const SHIP_STEP = {
+  created: 2, label_generated: 2, picked_up: 2, in_transit: 2, out_for_delivery: 2,
+  delivered: 3, returned: 3, failed: 2, cancelled: 0,
+}
+// Map an order status → the 4-step timeline index (fallback when no shipment yet).
+const ORDER_STEP = {
+  'Pending': 0, 'Order Placed': 0, 'Confirmed': 0,
+  'Processing': 1, 'Packing': 1, 'Packed': 1,
+  'Shipped': 2, 'Pickuped': 2, 'Out for delivery': 2, 'Out for Delivery': 2,
+  'Delivered': 3, 'Completed': 3, 'Returned': 3,
+}
 
 const TrackOrder = () => {
   const { orderId } = useParams()
@@ -11,7 +24,17 @@ const TrackOrder = () => {
   const [orderData, setOrderData] = useState(null)
   const [shipment, setShipment] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const liveUpdate = useOrderRealtime(orderId)
+
+  const refreshTracking = async () => {
+    if (!token || !shipment?.awb) return
+    setRefreshing(true)
+    try {
+      const { data } = await axios.post(backendUrl + '/api/shipment/refresh', { orderId }, { headers: { token } })
+      if (data.success) setShipment(data.shipment)
+    } catch (e) { console.log(e) } finally { setRefreshing(false) }
+  }
 
   const loadOrderData = async () => {
     try {
@@ -49,8 +72,11 @@ const TrackOrder = () => {
       { name: 'Delivered', icon: CheckCircle, status: 'Delivered' }
     ]
 
-    const currentStatusIndex = steps.findIndex(step => step.status === orderData?.status)
-    
+    // Prefer the live carrier status; fall back to the order status.
+    let currentStatusIndex = shipment?.status != null && SHIP_STEP[shipment.status] != null
+      ? SHIP_STEP[shipment.status]
+      : (ORDER_STEP[orderData?.status] ?? 0)
+
     return steps.map((step, index) => ({
       ...step,
       completed: index <= currentStatusIndex,
@@ -149,11 +175,20 @@ const TrackOrder = () => {
           <div className='bg-white border border-gray-200 p-6 mb-8'>
             <div className='flex flex-wrap items-center justify-between gap-3 mb-5'>
               <h2 className='text-xl font-bold'>Shipment Tracking</h2>
-              <span className='text-xs uppercase tracking-widest text-gray-500'>
-                {shipment.provider} · AWB {shipment.awb}
-              </span>
+              <div className='flex items-center gap-3'>
+                <span className='text-xs uppercase tracking-widest text-gray-500'>AWB {shipment.awb}</span>
+                {shipment.awb && (
+                  <button onClick={refreshTracking} disabled={refreshing} className='inline-flex items-center gap-1 text-xs font-semibold text-gray-700 hover:text-black disabled:opacity-40'>
+                    <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} /> Refresh
+                  </button>
+                )}
+              </div>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-sm'>
+              <div>
+                <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Courier</p>
+                <p className='font-semibold'>{shipment.courierName || shipment.provider}</p>
+              </div>
               <div>
                 <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Status</p>
                 <p className='font-semibold capitalize'>{shipment.status?.replace(/_/g, ' ')}</p>
@@ -162,11 +197,12 @@ const TrackOrder = () => {
                 <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Current Location</p>
                 <p className='font-semibold'>{shipment.currentLocation || '—'}</p>
               </div>
-              <div>
-                <p className='text-[10px] uppercase tracking-widest text-gray-500 mb-1'>Expected Delivery</p>
-                <p className='font-semibold'>{shipment.expectedDelivery ? new Date(shipment.expectedDelivery).toLocaleDateString() : '—'}</p>
-              </div>
             </div>
+            {shipment.carrierTrackUrl && (
+              <a href={shipment.carrierTrackUrl} target='_blank' rel='noreferrer' className='inline-flex items-center gap-1.5 text-sm font-semibold text-locoxo-orange hover:underline mb-4'>
+                Track on courier site <ExternalLink className='w-3.5 h-3.5' />
+              </a>
+            )}
             {shipment.events?.length > 0 && (
               <div className='border-t border-gray-200 pt-5'>
                 <p className='text-xs uppercase tracking-widest text-gray-500 mb-4'>Activity</p>

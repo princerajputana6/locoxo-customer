@@ -270,7 +270,7 @@ const Navbar = () => {
 
       {/* Center - Logo */}
       <Link to='/' className='flex items-center justify-center shrink-0'>
-        <img src={assets.logo_white} alt='LOCOXO' className='h-10 sm:h-14 w-auto object-contain' />
+        <img src={assets.logo_white} alt='LOCOXO' className='h-[50px] sm:h-[70px] w-auto object-contain' />
       </Link>
 
       {/* Right side - Search + Icons */}

@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Brand Section */}
           <div className='space-y-4'>
             <div className='flex items-center'>
-              <img src={assets.logo_white} alt='LOCOXO' className='h-8 w-auto object-contain' />
+              <img src={assets.logo_white} alt='LOCOXO' className='h-[40px] w-auto object-contain' />
             </div>
             <p className='text-gray-400 text-sm leading-relaxed'>
               Premium fashion for the modern trendsetter. Elevate your style with curated collections that speak to your individuality.

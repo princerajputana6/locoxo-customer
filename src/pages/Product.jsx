@@ -372,7 +372,11 @@ const Product = () => {
                     toast.error('Please select a size');
                     return;
                   }
-                  addToCart(productData._id, size || 'Free');
+                  addToCart(productData._id, size || 'Free', {
+                    color: activeColour ? colourLabel(activeColour) : undefined,
+                    colorCode: activeColour?.colorCode,
+                    image: activeImages[0] || image,
+                  });
                 }}
                 className='flex-1 bg-yellow-400 hover:bg-yellow-500 text-black py-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors'
               >

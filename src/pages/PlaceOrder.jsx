@@ -11,7 +11,7 @@ const typeIcon = (t) => (t === 'work' ? Briefcase : t === 'other' ? MapPin : Hom
 const PlaceOrder = () => {
     const [method, setMethod] = useState('cod')
     const [showLoginMessage, setShowLoginMessage] = useState(false)
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, sellingPriceOf } = useContext(ShopContext)
+    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, sellingPriceOf, variantOf } = useContext(ShopContext)
 
     const [user, setUser] = useState(null)
     const [addresses, setAddresses] = useState([])
@@ -81,13 +81,15 @@ const PlaceOrder = () => {
                     if (cartItems[items][item] > 0) {
                         const itemInfo = structuredClone(products.find(p => p._id === items))
                         if (itemInfo) {
+                            const v = variantOf(items, item)   // selected colour + its image
                             orderItems.push({
                                 productId: itemInfo._id,
                                 name: itemInfo.name,
-                                image: Array.isArray(itemInfo.image) ? itemInfo.image[0] : itemInfo.image,
+                                image: v?.image || (Array.isArray(itemInfo.image) ? itemInfo.image[0] : itemInfo.image),
                                 price: sellingPriceOf(itemInfo),   // discounted price actually paid, not MRP
                                 quantity: cartItems[items][item],
-                                size: item
+                                size: item,
+                                color: v?.color,
                             })
                         }
                     }

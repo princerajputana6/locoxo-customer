@@ -13,18 +13,37 @@ const ShopContextProvider = (props) => {
     const [search, setSearch] = useState('');
     const [showSearch, setShowSearch] = useState(false);
     const [cartItems, setCartItems] = useState({});
+    // Per-line selected variant (colour + its image), keyed [productId][size].
+    // Kept in localStorage so the chosen colour's image shows in the bag/checkout
+    // (the backend cart only stores quantities).
+    const [cartVariants, setCartVariants] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('cartVariants') || '{}') } catch { return {} }
+    });
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [token, setToken] = useState('')
     const navigate = useNavigate();
 
 
-    const addToCart = async (itemId, size) => {
+    // Persist variant selections across reloads.
+    useEffect(() => {
+        try { localStorage.setItem('cartVariants', JSON.stringify(cartVariants)) } catch { /* ignore */ }
+    }, [cartVariants])
+
+    const variantOf = (id, size) => (cartVariants?.[id]?.[size]) || null
+    const setVariant = (id, size, variant) => {
+        if (!variant) return
+        setCartVariants((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), [size]: variant } }))
+    }
+
+    const addToCart = async (itemId, size, variant) => {
 
         if (!size) {
             toast.error('Select Product Size');
             return;
         }
+
+        if (variant) setVariant(itemId, size, variant)
 
         let cartData = structuredClone(cartItems);
 
@@ -194,6 +213,7 @@ const ShopContextProvider = (props) => {
         products, currency, delivery_fee,
         search, setSearch, showSearch, setShowSearch,
         cartItems, addToCart,setCartItems,
+        cartVariants, variantOf, setVariant,
         getCartCount, updateQuantity,
         getCartAmount, getCartSavings, sellingPriceOf, navigate, backendUrl,
         setToken, token, categories

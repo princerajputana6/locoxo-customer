@@ -12,7 +12,7 @@ const sizesOf = (p) => {
 }
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, getCartAmount, getCartSavings, sellingPriceOf, delivery_fee, navigate, token, backendUrl } = useContext(ShopContext)
+  const { products, currency, cartItems, updateQuantity, getCartAmount, getCartSavings, sellingPriceOf, delivery_fee, navigate, token, backendUrl, variantOf, setVariant } = useContext(ShopContext)
 
   const [cartData, setCartData] = useState([])
   const [pincode, setPincode] = useState('')
@@ -54,8 +54,10 @@ const Cart = () => {
   const changeSize = async (id, oldSize, newSize, qty) => {
     if (!newSize || newSize === oldSize) return
     const existing = cartItems[id]?.[newSize] || 0   // merge if the new size is already in the bag
+    const vOld = variantOf(id, oldSize)              // carry the chosen colour to the new size
     await updateQuantity(id, oldSize, 0)
     await updateQuantity(id, newSize, existing + qty)
+    if (vOld) setVariant(id, newSize, vOld)
   }
 
   const subtotal = getCartAmount()
@@ -119,7 +121,8 @@ const Cart = () => {
             {cartData.map((item, index) => {
               const p = products.find((x) => x._id === item._id)
               if (!p) return null
-              const img = Array.isArray(p.image) ? p.image[0] : p.image
+              const v = variantOf(item._id, item.size)
+              const img = v?.image || (Array.isArray(p.image) ? p.image[0] : p.image)
               const mrp = Number(p.price) || 0
               const selling = sellingPriceOf(p)
               const lineSaved = mrp > selling ? (mrp - selling) * item.quantity : 0
@@ -135,6 +138,7 @@ const Cart = () => {
                       </button>
                     </div>
                     <p className='text-xs text-green-700 font-medium mt-1'>Ships in 1-2 days</p>
+                    {v?.color && <p className='text-xs text-gray-600 mt-0.5'>Colour: <span className='font-medium text-gray-800'>{v.color}</span></p>}
 
                     <div className='flex flex-wrap items-center gap-2 mt-3'>
                       {/* Editable size */}

@@ -133,7 +133,9 @@ const ShopContextProvider = (props) => {
     const getProductsData = async () => {
         try {
 
-            const response = await axios.get(backendUrl + '/api/product/list')
+            // Load the full active catalogue (backend defaults to 20 per page, which
+            // hid most products from the storefront & category pages).
+            const response = await axios.get(backendUrl + '/api/product/list?limit=2000')
             if (response.data.success) {
                 setProducts(response.data.products.reverse())
             } else {

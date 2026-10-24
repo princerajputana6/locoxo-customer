@@ -19,6 +19,18 @@ const Cart = () => {
   const [couponInput, setCouponInput] = useState('')
   const [coupon, setCoupon] = useState(null) // { code, discount }
   const [applying, setApplying] = useState(false)
+  const [offers, setOffers] = useState([]) // available coupons shown to the customer
+
+  // Load the public list of active coupons to show as "Available Offers".
+  useEffect(() => {
+    axios.get(backendUrl + '/api/coupon/available')
+      .then(({ data }) => { if (data.success) setOffers(data.coupons || []) })
+      .catch(() => { /* non-fatal */ })
+  }, [])
+
+  const offerText = (c) => c.discountType === 'percentage'
+    ? `${c.discountValue}% OFF${c.maxDiscountAmount ? ` up to ${currency}${c.maxDiscountAmount}` : ''}`
+    : `${currency}${c.discountValue || c.discountAmount || 0} OFF`
 
   useEffect(() => {
     if (products.length > 0) {
@@ -52,9 +64,10 @@ const Cart = () => {
   const shipping = subtotal >= 999 ? 0 : (subtotal > 0 ? delivery_fee : 0)
   const total = Math.max(0, subtotal - discount) + shipping
 
-  const applyCoupon = async () => {
-    const code = couponInput.trim().toUpperCase()
+  const applyCoupon = async (codeArg) => {
+    const code = (typeof codeArg === 'string' ? codeArg : couponInput).trim().toUpperCase()
     if (!code) return
+    setCouponInput(code)
     setApplying(true)
     try {
       const { data } = await axios.post(backendUrl + '/api/coupon/validate', { code, cartAmount: subtotal, userId: undefined }, { headers: token ? { token } : {} })
@@ -178,9 +191,33 @@ const Cart = () => {
                 <button onClick={removeCoupon} className='text-sm text-red-500 font-semibold hover:underline'>Remove</button>
               </div>
             ) : (
-              <div className='flex items-center gap-2'>
-                <input value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} placeholder='Apply coupon / gift card' className='flex-1 text-sm outline-none border border-gray-200 rounded px-3 py-2' />
-                <button onClick={applyCoupon} disabled={applying} className='px-4 py-2 text-sm font-semibold rounded border border-black hover:bg-black hover:text-white transition-colors disabled:opacity-50'>{applying ? '…' : 'Apply'}</button>
+              <div>
+                <div className='flex items-center gap-2'>
+                  <input value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} placeholder='Apply coupon / gift card' className='flex-1 text-sm outline-none border border-gray-200 rounded px-3 py-2' />
+                  <button onClick={() => applyCoupon()} disabled={applying} className='px-4 py-2 text-sm font-semibold rounded border border-black hover:bg-black hover:text-white transition-colors disabled:opacity-50'>{applying ? '…' : 'Apply'}</button>
+                </div>
+
+                {offers.length > 0 && (
+                  <div className='mt-3'>
+                    <p className='text-xs font-semibold text-gray-700 mb-2'>Available Offers</p>
+                    <div className='space-y-2'>
+                      {offers.map((c) => (
+                        <div key={c.code} className='flex items-start justify-between gap-3 border border-dashed border-gray-300 rounded-lg p-2.5'>
+                          <div className='min-w-0'>
+                            <div className='flex items-center gap-2'>
+                              <span className='text-xs font-bold tracking-wide px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-200'>{c.code}</span>
+                              <span className='text-xs font-semibold text-gray-800'>{offerText(c)}</span>
+                            </div>
+                            <p className='text-[11px] text-gray-500 mt-1'>
+                              {c.description || (c.minPurchaseAmount ? `On orders above ${currency}${c.minPurchaseAmount}` : 'Apply at checkout')}
+                            </p>
+                          </div>
+                          <button onClick={() => applyCoupon(c.code)} disabled={applying} className='shrink-0 text-xs font-semibold text-green-700 hover:underline disabled:opacity-50'>APPLY</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
